@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+bin/*.js
+bin/*.d.ts
+bin/*.js.map
+
+# Test coverage
+coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+bin/cli.d.ts.map
+bin/list.d.ts.map
+package-lock.json
