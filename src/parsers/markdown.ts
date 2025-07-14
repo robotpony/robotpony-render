@@ -10,17 +10,21 @@ export interface ChartSpec {
   title?: string;
   data: any;
   theme?: string;
+  style?: string;
 }
 
 export interface VennData {
   sets: Array<{
     name: string;
     size: number;
+    color?: string;
   }>;
   intersections?: Array<{
     sets: string[];
     size: number;
+    label?: string;
   }>;
+  background?: string;
 }
 
 export class MarkdownParser {
@@ -38,16 +42,97 @@ export class MarkdownParser {
   parseContent(content: string): ChartSpec {
     const { frontmatter, body } = this.extractFrontmatter(content);
     
-    // Parse the body for chart data
-    const tokens = marked.lexer(body);
-    const chartData = this.extractChartData(tokens);
+    // Check if we have natural format data in frontmatter
+    let chartData: VennData;
+    if (frontmatter.sets || frontmatter.overlap) {
+      chartData = this.parseNaturalFormat(frontmatter);
+    } else {
+      // Parse the body for chart data (legacy JSON format)
+      const tokens = marked.lexer(body);
+      chartData = this.extractChartData(tokens);
+    }
     
     return {
       type: frontmatter.type || 'venn',
       title: frontmatter.title,
       theme: frontmatter.theme,
+      style: frontmatter.style,
       data: chartData
     };
+  }
+
+  /**
+   * Parse natural format from frontmatter
+   */
+  private parseNaturalFormat(frontmatter: any): VennData {
+    const vennData: VennData = {
+      sets: [],
+      intersections: []
+    };
+    
+    // Add background if specified
+    if (frontmatter.background) {
+      vennData.background = this.parseColorValue(frontmatter.background);
+    }
+    
+    // Parse sets
+    if (frontmatter.sets && Array.isArray(frontmatter.sets)) {
+      vennData.sets = frontmatter.sets.map((set: any, index: number) => {
+        if (typeof set === 'string') {
+          return this.parseSetDefinition(set);
+        } else if (typeof set === 'object') {
+          return {
+            name: set.name || `Set ${index + 1}`,
+            size: set.size || 100,
+            color: set.color ? this.parseColorValue(set.color) : undefined
+          };
+        }
+        return { name: `Set ${index + 1}`, size: 100 };
+      });
+    }
+    
+    // Parse overlap/intersection
+    if (frontmatter.overlap) {
+      vennData.intersections = [{
+        sets: vennData.sets.map(set => set.name),
+        size: 30, // Default size
+        label: frontmatter.overlap
+      }];
+    }
+    
+    // Add automatic line breaks for long names
+    vennData.sets = vennData.sets.map(set => ({
+      ...set,
+      name: this.addAutomaticLineBreaks(set.name)
+    }));
+    
+    return vennData;
+  }
+
+  /**
+   * Add automatic line breaks to long text
+   */
+  private addAutomaticLineBreaks(text: string, maxLength: number = 12): string {
+    if (text.length <= maxLength || text.includes('\n')) {
+      return text;
+    }
+    
+    // Find good break points (spaces, hyphens)
+    const words = text.split(/(\s+|-)/);
+    let result = '';
+    let currentLine = '';
+    
+    for (const word of words) {
+      if ((currentLine + word).length > maxLength && currentLine.length > 0) {
+        result += (result ? '\n' : '') + currentLine.trim();
+        currentLine = word;
+      } else {
+        currentLine += word;
+      }
+    }
+    
+    result += (result ? '\n' : '') + currentLine.trim();
+    return result;
   }
 
   /**
@@ -70,25 +155,100 @@ export class MarkdownParser {
   }
 
   /**
-   * Simple YAML parser for basic frontmatter
+   * Enhanced YAML parser for natural format support
    */
   private parseSimpleYaml(yaml: string): any {
     const result: any = {};
     const lines = yaml.split('\n');
+    let currentKey: string | null = null;
+    let currentArray: any[] = [];
     
     for (const line of lines) {
       const trimmed = line.trim();
-      if (trimmed && !trimmed.startsWith('#')) {
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      
+      if (trimmed.startsWith('- ')) {
+        // Array item
+        if (currentKey) {
+          const item = trimmed.substring(2).trim();
+          currentArray.push(this.parseSetDefinition(item));
+        }
+      } else {
+        // Save previous array if exists
+        if (currentKey && currentArray.length > 0) {
+          result[currentKey] = currentArray;
+          currentArray = [];
+        }
+        
         const colonIndex = trimmed.indexOf(':');
         if (colonIndex > 0) {
           const key = trimmed.substring(0, colonIndex).trim();
           const value = trimmed.substring(colonIndex + 1).trim().replace(/^["']|["']$/g, '');
-          result[key] = value;
+          
+          if (value) {
+            // Simple key-value
+            result[key] = this.parseColorValue(value);
+            currentKey = null;
+          } else {
+            // Array key
+            currentKey = key;
+            currentArray = [];
+          }
         }
       }
     }
     
+    // Save final array if exists
+    if (currentKey && currentArray.length > 0) {
+      result[currentKey] = currentArray;
+    }
+    
     return result;
+  }
+
+  /**
+   * Parse set definition with optional color
+   * Examples: "Best Practices (olive)", "Zen and the Art Of (orange)"
+   */
+  private parseSetDefinition(text: string): { name: string; color?: string } {
+    const colorMatch = text.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+    
+    if (colorMatch) {
+      return {
+        name: colorMatch[1].trim(),
+        color: this.parseColorValue(colorMatch[2].trim())
+      };
+    }
+    
+    return { name: text };
+  }
+
+  /**
+   * Convert natural color names to hex values
+   */
+  private parseColorValue(colorName: string): string {
+    const colorMap: Record<string, string> = {
+      'olive': '#9fb665',
+      'orange': '#c8986b', 
+      'beige': '#d4c5a9',
+      'blue': '#3498db',
+      'red': '#e74c3c',
+      'green': '#2ecc71',
+      'purple': '#9b59b6',
+      'yellow': '#f1c40f',
+      'gray': '#95a5a6',
+      'grey': '#95a5a6',
+      'black': '#2c3e50',
+      'white': '#ffffff'
+    };
+    
+    // Return hex color if it starts with #
+    if (colorName.startsWith('#')) {
+      return colorName;
+    }
+    
+    // Return mapped color or original if not found
+    return colorMap[colorName.toLowerCase()] || colorName;
   }
 
   /**

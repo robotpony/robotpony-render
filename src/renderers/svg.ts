@@ -29,10 +29,13 @@ export abstract class SVGRenderer {
   abstract render(chartSpec: ChartSpec): Promise<string>;
 
   /**
-   * Create base SVG container as string
+   * Create base SVG container as string with optional background
    */
-  protected createSVG(): string {
-    return `<svg width="${this.width}" height="${this.height}" viewBox="0 0 ${this.width} ${this.height}" xmlns="http://www.w3.org/2000/svg">`;
+  protected createSVG(backgroundColor?: string): string {
+    const bgRect = backgroundColor ? 
+      `<rect width="100%" height="100%" fill="${backgroundColor}"/>` : '';
+    
+    return `<svg width="${this.width}" height="${this.height}" viewBox="0 0 ${this.width} ${this.height}" xmlns="http://www.w3.org/2000/svg">${bgRect}`;
   }
 
   /**
@@ -71,6 +74,30 @@ export abstract class SVGRenderer {
         .venn-circle.set-b { fill: rgba(231, 76, 60, 0.4); stroke: rgba(231, 76, 60, 1); }
         .venn-circle.set-c { fill: rgba(46, 204, 113, 0.4); stroke: rgba(46, 204, 113, 1); }
         .intersection-label { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 14px; text-anchor: middle; fill: #2c3e50; font-weight: 600; }
+      `,
+      robotpony: `
+        .chart-title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; text-anchor: middle; fill: #333; }
+        .set-label { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; text-anchor: middle; fill: white; }
+        .venn-circle { stroke-width: 2; opacity: 0.8; }
+        .intersection-label { 
+          font-family: Arial, sans-serif; 
+          font-size: 12px; 
+          font-weight: bold; 
+          text-anchor: middle; 
+          fill: white; 
+        }
+        .intersection-badge { 
+          fill: #2c3e50; 
+          stroke: #2c3e50; 
+          stroke-width: 2; 
+          rx: 8; 
+          ry: 8; 
+        }
+        .connector-line { 
+          stroke: #2c3e50; 
+          stroke-width: 2; 
+          fill: none; 
+        }
       `
     };
     
