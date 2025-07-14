@@ -6,6 +6,7 @@ bin/*.js
 bin/*.d.ts
 bin/*.js.map
 
+dist/*
 # Test coverage
 coverage/
 
