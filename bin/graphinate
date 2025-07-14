@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+
+/**
+ * Executable entry point for graphinate CLI
+ */
+
+const path = require('path');
+const { main } = require(path.join(__dirname, '..', 'dist', 'index.js'));
+
+main().catch((error) => {
+  console.error('Error:', error.message);
+  process.exit(1);
+});

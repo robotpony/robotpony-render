@@ -1,0 +1,44 @@
+{
+  "name": "graphinate",
+  "version": "0.1.0",
+  "description": "A command-line tool for generating SVG and PNG images from markdown for venn diagrams and simple charts",
+  "main": "dist/index.js",
+  "bin": {
+    "graphinate": "bin/graphinate"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "cli",
+    "charts",
+    "venn-diagrams",
+    "svg",
+    "png",
+    "markdown",
+    "visualization"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@types/venn": "^0.2.7",
+    "chalk": "^4.1.2",
+    "commander": "^11.0.0",
+    "d3": "^6.7.0",
+    "marked": "^7.0.4",
+    "sharp": "^0.32.6",
+    "venn.js": "^0.2.20"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.0",
+    "@types/node": "^20.6.0",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
