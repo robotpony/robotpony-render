@@ -2,11 +2,12 @@
  * Markdown parser for extracting chart specifications
  */
 
-import { marked, Token } from 'marked';
+// Natural format parser for chart specifications
 import * as fs from 'fs/promises';
+import * as yaml from 'js-yaml';
 
 export interface ChartSpec {
-  type: 'venn' | 'bar' | 'line' | 'pie';
+  type: 'venn' | 'flowchart' | 'bar' | 'line' | 'pie';
   title?: string;
   data: any;
   theme?: string;
@@ -27,6 +28,25 @@ export interface VennData {
   background?: string;
 }
 
+export interface FlowchartData {
+  nodes: Array<{
+    id: string;
+    type: 'diamond' | 'rectangle' | 'circle';
+    text: string;
+    color?: string;
+    x?: number;
+    y?: number;
+  }>;
+  connections: Array<{
+    from: string;
+    to: string;
+    label?: string;
+  }>;
+  caption?: string;
+  subtitle?: string;
+  background?: string;
+}
+
 export class MarkdownParser {
   /**
    * Parse a markdown file and extract chart specification
@@ -40,20 +60,14 @@ export class MarkdownParser {
    * Parse markdown content and extract chart specification
    */
   parseContent(content: string): ChartSpec {
-    const { frontmatter, body } = this.extractFrontmatter(content);
+    const { frontmatter } = this.extractFrontmatter(content);
     
-    // Check if we have natural format data in frontmatter
-    let chartData: VennData;
-    if (frontmatter.sets || frontmatter.overlap) {
-      chartData = this.parseNaturalFormat(frontmatter);
-    } else {
-      // Parse the body for chart data (legacy JSON format)
-      const tokens = marked.lexer(body);
-      chartData = this.extractChartData(tokens);
-    }
+    // Parse natural format data from frontmatter based on type
+    const chartType = frontmatter.type || 'venn';
+    const chartData = this.parseNaturalFormat(frontmatter, chartType);
     
     return {
-      type: frontmatter.type || 'venn',
+      type: chartType,
       title: frontmatter.title,
       theme: frontmatter.theme,
       style: frontmatter.style,
@@ -64,7 +78,18 @@ export class MarkdownParser {
   /**
    * Parse natural format from frontmatter
    */
-  private parseNaturalFormat(frontmatter: any): VennData {
+  private parseNaturalFormat(frontmatter: any, chartType: string): VennData | FlowchartData {
+    if (chartType === 'flowchart') {
+      return this.parseFlowchartFormat(frontmatter);
+    } else {
+      return this.parseVennFormat(frontmatter);
+    }
+  }
+
+  /**
+   * Parse venn diagram format from frontmatter
+   */
+  private parseVennFormat(frontmatter: any): VennData {
     const vennData: VennData = {
       sets: [],
       intersections: []
@@ -75,12 +100,16 @@ export class MarkdownParser {
       vennData.background = this.parseColorValue(frontmatter.background);
     }
     
-    // Parse sets
+    // Parse sets - required for venn diagrams
     if (frontmatter.sets && Array.isArray(frontmatter.sets)) {
       vennData.sets = frontmatter.sets.map((set: any, index: number) => {
         if (typeof set === 'string') {
-          return this.parseSetDefinition(set);
-        } else if (typeof set === 'object') {
+          const parsed = this.parseSetDefinition(set);
+          return {
+            ...parsed,
+            size: 100 // Default size
+          };
+        } else if (typeof set === 'object' && set !== null) {
           return {
             name: set.name || `Set ${index + 1}`,
             size: set.size || 100,
@@ -89,6 +118,12 @@ export class MarkdownParser {
         }
         return { name: `Set ${index + 1}`, size: 100 };
       });
+    } else {
+      // Default sets if none provided
+      vennData.sets = [
+        { name: 'Set A', size: 100 },
+        { name: 'Set B', size: 100 }
+      ];
     }
     
     // Parse overlap/intersection
@@ -107,6 +142,54 @@ export class MarkdownParser {
     }));
     
     return vennData;
+  }
+
+  /**
+   * Parse flowchart format from frontmatter
+   */
+  private parseFlowchartFormat(frontmatter: any): FlowchartData {
+    const flowchartData: FlowchartData = {
+      nodes: [],
+      connections: []
+    };
+    
+    // Add background if specified
+    if (frontmatter.background) {
+      flowchartData.background = this.parseColorValue(frontmatter.background);
+    }
+    
+    // Add caption and subtitle
+    if (frontmatter.caption) {
+      flowchartData.caption = frontmatter.caption;
+    }
+    if (frontmatter.subtitle) {
+      flowchartData.subtitle = frontmatter.subtitle;
+    }
+    
+    // Parse nodes
+    if (frontmatter.nodes && Array.isArray(frontmatter.nodes)) {
+      flowchartData.nodes = frontmatter.nodes.map((node: any, index: number) => {
+        return {
+          id: node.id || `node${index}`,
+          type: node.type || 'rectangle',
+          text: node.text || `Node ${index + 1}`,
+          color: node.color ? this.parseColorValue(node.color) : undefined,
+          x: node.x,
+          y: node.y
+        };
+      });
+    }
+    
+    // Parse connections
+    if (frontmatter.connections && Array.isArray(frontmatter.connections)) {
+      flowchartData.connections = frontmatter.connections.map((conn: any) => ({
+        from: conn.from,
+        to: conn.to,
+        label: conn.label
+      }));
+    }
+    
+    return flowchartData;
   }
 
   /**
@@ -146,64 +229,12 @@ export class MarkdownParser {
       const frontmatterText = match[1];
       const body = match[2];
       
-      // Simple YAML parsing for basic key-value pairs
-      const frontmatter = this.parseSimpleYaml(frontmatterText);
+      // Parse YAML frontmatter
+      const frontmatter = yaml.load(frontmatterText) as any;
       return { frontmatter, body };
     }
     
     return { frontmatter: {}, body: content };
-  }
-
-  /**
-   * Enhanced YAML parser for natural format support
-   */
-  private parseSimpleYaml(yaml: string): any {
-    const result: any = {};
-    const lines = yaml.split('\n');
-    let currentKey: string | null = null;
-    let currentArray: any[] = [];
-    
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) continue;
-      
-      if (trimmed.startsWith('- ')) {
-        // Array item
-        if (currentKey) {
-          const item = trimmed.substring(2).trim();
-          currentArray.push(this.parseSetDefinition(item));
-        }
-      } else {
-        // Save previous array if exists
-        if (currentKey && currentArray.length > 0) {
-          result[currentKey] = currentArray;
-          currentArray = [];
-        }
-        
-        const colonIndex = trimmed.indexOf(':');
-        if (colonIndex > 0) {
-          const key = trimmed.substring(0, colonIndex).trim();
-          const value = trimmed.substring(colonIndex + 1).trim().replace(/^["']|["']$/g, '');
-          
-          if (value) {
-            // Simple key-value
-            result[key] = this.parseColorValue(value);
-            currentKey = null;
-          } else {
-            // Array key
-            currentKey = key;
-            currentArray = [];
-          }
-        }
-      }
-    }
-    
-    // Save final array if exists
-    if (currentKey && currentArray.length > 0) {
-      result[currentKey] = currentArray;
-    }
-    
-    return result;
   }
 
   /**
@@ -251,84 +282,4 @@ export class MarkdownParser {
     return colorMap[colorName.toLowerCase()] || colorName;
   }
 
-  /**
-   * Extract chart data from markdown tokens
-   */
-  private extractChartData(tokens: Token[]): any {
-    for (const token of tokens) {
-      if (token.type === 'code' && (token.lang === 'venn' || token.lang === 'chart')) {
-        try {
-          return JSON.parse(token.text);
-        } catch (error) {
-          // If JSON parsing fails, try to parse as simple format
-          return this.parseSimpleFormat(token.text);
-        }
-      }
-    }
-    
-    // If no code block found, try to extract from lists
-    return this.extractFromList(tokens);
-  }
-
-  /**
-   * Parse simple text format for chart data
-   */
-  private parseSimpleFormat(text: string): VennData {
-    const lines = text.split('\n').map(line => line.trim()).filter(line => line);
-    const sets: Array<{ name: string; size: number }> = [];
-    const intersections: Array<{ sets: string[]; size: number }> = [];
-    
-    for (const line of lines) {
-      if (line.includes('∩') || line.includes('&') || line.includes(' and ')) {
-        // Intersection
-        const parts = line.split(/[∩&]|and/).map(p => p.trim());
-        if (parts.length >= 2) {
-          const sizeMatch = line.match(/(\d+)$/);
-          if (sizeMatch) {
-            intersections.push({
-              sets: parts.slice(0, -1).map(s => s.replace(/\d+$/, '').trim()),
-              size: parseInt(sizeMatch[1])
-            });
-          }
-        }
-      } else {
-        // Simple set
-        const match = line.match(/^(.+?):?\s*(\d+)$/);
-        if (match) {
-          sets.push({
-            name: match[1].trim(),
-            size: parseInt(match[2])
-          });
-        }
-      }
-    }
-    
-    return { sets, intersections };
-  }
-
-  /**
-   * Extract chart data from markdown list tokens
-   */
-  private extractFromList(tokens: Token[]): VennData {
-    const sets: Array<{ name: string; size: number }> = [];
-    
-    for (const token of tokens) {
-      if (token.type === 'list') {
-        for (const item of token.items) {
-          if (item.type === 'list_item') {
-            const text = item.text;
-            const match = text.match(/^(.+?):?\s*(\d+)$/);
-            if (match) {
-              sets.push({
-                name: match[1].trim(),
-                size: parseInt(match[2])
-              });
-            }
-          }
-        }
-      }
-    }
-    
-    return { sets, intersections: [] };
-  }
 }

@@ -17,7 +17,7 @@ graphinate source.md output.png --theme=rp --type=venn
 
 ## Development Workflow
 
-1. Use TodoWrite tool to plan implementation tasks in tasks/todo.md files
+1. Outline your tasks each in tasks/todo.md files, named by the feature name as you see it.
 2. Create incremental, testable changes
 3. Verify each change works before proceeding
 4. Keep code functional, clear, and simple

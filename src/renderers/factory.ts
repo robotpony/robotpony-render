@@ -4,6 +4,7 @@
 
 import { SVGRenderer, RenderOptions } from './svg';
 import { VennDiagramGenerator } from '../generators/venn';
+import { FlowchartGenerator } from '../generators/flowchart';
 import { ChartSpec } from '../parsers/markdown';
 
 export class ChartRendererFactory {
@@ -14,6 +15,9 @@ export class ChartRendererFactory {
     switch (chartType.toLowerCase()) {
       case 'venn':
         return new VennDiagramGenerator(options);
+      
+      case 'flowchart':
+        return new FlowchartGenerator(options);
       
       // TODO: Add other chart types
       case 'bar':

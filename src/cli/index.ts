@@ -16,14 +16,14 @@ export class CLI {
   private setupCommands(): void {
     this.program
       .name('graphinate')
-      .description('Generate SVG and PNG images from markdown for venn diagrams and charts')
+      .description('Generate SVG and PNG images from markdown for venn diagrams, flowcharts and charts')
       .version('0.1.0');
 
     this.program
       .argument('<input>', 'Input markdown file')
       .argument('<output>', 'Output image file (.svg or .png)')
       .option('--theme <theme>', 'Theme to apply', 'default')
-      .option('--type <type>', 'Chart type (venn, bar, line)', 'venn')
+      .option('--type <type>', 'Chart type (venn, flowchart)', 'venn')
       .action(async (input: string, output: string, options: any) => {
         await this.handleGenerate(input, output, options);
       });

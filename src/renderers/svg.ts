@@ -98,6 +98,14 @@ export abstract class SVGRenderer {
           stroke-width: 2; 
           fill: none; 
         }
+        /* Flowchart styles */
+        .flowchart-shape { stroke-width: 2; opacity: 0.9; }
+        .node-text { font-family: 'Courier New', Monaco, Consolas, monospace; font-size: 12px; font-weight: bold; fill: white; text-anchor: middle; }
+        .connection-line { stroke: #2c3e50; stroke-width: 2; fill: none; }
+        .connection-label { font-family: 'Courier New', Monaco, Consolas, monospace; font-size: 10px; fill: #2c3e50; font-weight: bold; }
+        .arrowhead { fill: #2c3e50; }
+        .flowchart-caption { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #2c3e50; }
+        .flowchart-subtitle { font-family: Arial, sans-serif; font-size: 12px; fill: #666; }
       `
     };
     
