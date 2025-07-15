@@ -7,7 +7,7 @@ import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
 
 export interface ChartSpec {
-  type: 'venn' | 'flowchart' | 'bar' | 'line' | 'pie';
+  type: 'venn' | 'flowchart' | 'plot' | 'bar' | 'line' | 'pie';
   title?: string;
   data: any;
   theme?: string;
@@ -47,6 +47,23 @@ export interface FlowchartData {
   background?: string;
 }
 
+export interface PlotData {
+  x_axis: string;
+  y_axis: string;
+  x_range: [number, number];
+  y_range: [number, number];
+  line: {
+    style?: 'solid' | 'dotted' | 'dashed';
+    points: Array<[number, number]>;
+  };
+  captions: Array<{
+    text: string;
+    x: number;
+    y: number;
+  }>;
+  background?: string;
+}
+
 export class MarkdownParser {
   /**
    * Parse a markdown file and extract chart specification
@@ -78,9 +95,11 @@ export class MarkdownParser {
   /**
    * Parse natural format from frontmatter
    */
-  private parseNaturalFormat(frontmatter: any, chartType: string): VennData | FlowchartData {
+  private parseNaturalFormat(frontmatter: any, chartType: string): VennData | FlowchartData | PlotData {
     if (chartType === 'flowchart') {
       return this.parseFlowchartFormat(frontmatter);
+    } else if (chartType === 'plot') {
+      return this.parsePlotFormat(frontmatter);
     } else {
       return this.parseVennFormat(frontmatter);
     }
@@ -190,6 +209,39 @@ export class MarkdownParser {
     }
     
     return flowchartData;
+  }
+
+  /**
+   * Parse plot format from frontmatter
+   */
+  private parsePlotFormat(frontmatter: any): PlotData {
+    const plotData: PlotData = {
+      x_axis: frontmatter.x_axis || 'X',
+      y_axis: frontmatter.y_axis || 'Y',
+      x_range: frontmatter.x_range || [0, 10],
+      y_range: frontmatter.y_range || [0, 10],
+      line: {
+        style: frontmatter.line?.style || 'solid',
+        points: frontmatter.line?.points || [[0, 0], [10, 10]]
+      },
+      captions: []
+    };
+
+    // Add background if specified
+    if (frontmatter.background) {
+      plotData.background = this.parseColorValue(frontmatter.background);
+    }
+
+    // Parse captions
+    if (frontmatter.captions && Array.isArray(frontmatter.captions)) {
+      plotData.captions = frontmatter.captions.map((caption: any) => ({
+        text: caption.text || '',
+        x: caption.x || 0,
+        y: caption.y || 0
+      }));
+    }
+
+    return plotData;
   }
 
   /**
