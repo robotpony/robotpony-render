@@ -20,7 +20,15 @@
     "clean": "rm -rf dist coverage",
     "quality": "npm run lint && npm run test:ci && npm run build",
     "prebuild": "npm run lint",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "prepack": "npm run build",
+    "version:patch": "npm version patch",
+    "version:minor": "npm version minor",
+    "version:major": "npm version major",
+    "publish:dry": "npm publish --dry-run",
+    "publish:check": "npm run quality && npm run publish:dry",
+    "test:package": "scripts/test-package.sh",
+    "release": "semantic-release"
   },
   "keywords": [
     "cli",
@@ -31,8 +39,16 @@
     "markdown",
     "visualization"
   ],
-  "author": "",
+  "author": "robotpony-render contributors",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robotpony/robotpony-render.git"
+  },
+  "bugs": {
+    "url": "https://github.com/robotpony/robotpony-render/issues"
+  },
+  "homepage": "https://github.com/robotpony/robotpony-render#readme",
   "dependencies": {
     "@types/venn": "^0.2.7",
     "ajv": "^8.17.1",
@@ -45,6 +61,8 @@
     "venn.js": "^0.2.20"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@types/ajv": "^0.0.5",
     "@types/d3": "^7.4.0",
     "@types/jest": "^30.0.0",
@@ -54,10 +72,21 @@
     "@typescript-eslint/parser": "^8.37.0",
     "eslint": "^9.31.0",
     "jest": "^30.0.4",
+    "semantic-release": "^24.2.7",
     "ts-jest": "^29.4.0",
     "typescript": "^5.2.2"
   },
   "engines": {
     "node": ">=16.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "bin/**/*",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

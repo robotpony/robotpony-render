@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is an image generation tool called `graphinate` that reads markdown files and renders SVG or PNG images for venn diagrams, plot graphs, and flowcharts.
 
-**Current Status**: Fully functional implementation with TypeScript codebase, comprehensive testing, and working examples. The tool is ready for use and distribution.
+**Current Status**: Fully functional implementation with TypeScript codebase. Working on rendering quality.
 
 ## Command Structure
 
