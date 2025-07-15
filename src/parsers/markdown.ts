@@ -5,6 +5,8 @@
 // Natural format parser for chart specifications
 import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
+import Ajv from 'ajv';
+import { getSchemaForType, validationMessages } from '../schemas';
 
 export interface ChartSpec {
   type: 'venn' | 'flowchart' | 'plot' | 'bar' | 'line' | 'pie';
@@ -65,6 +67,12 @@ export interface PlotData {
 }
 
 export class MarkdownParser {
+  private ajv: Ajv;
+
+  constructor() {
+    this.ajv = new Ajv({ allErrors: true });
+  }
+
   /**
    * Parse a markdown file and extract chart specification
    */
@@ -79,6 +87,9 @@ export class MarkdownParser {
   parseContent(content: string): ChartSpec {
     const { frontmatter } = this.extractFrontmatter(content);
     
+    // Validate frontmatter structure
+    this.validateFrontmatter(frontmatter);
+    
     // Parse natural format data from frontmatter based on type
     const chartType = frontmatter.type || 'venn';
     const chartData = this.parseNaturalFormat(frontmatter, chartType);
@@ -90,6 +101,75 @@ export class MarkdownParser {
       style: frontmatter.style,
       data: chartData
     };
+  }
+
+  /**
+   * Validate frontmatter against schema
+   */
+  private validateFrontmatter(frontmatter: any): void {
+    const chartType = frontmatter.type || 'venn';
+    
+    try {
+      const schema = getSchemaForType(chartType);
+      const validate = this.ajv.compile(schema);
+      const valid = validate(frontmatter);
+      
+      if (!valid) {
+        const errors = validate.errors || [];
+        const errorMessages = errors.map(error => this.formatValidationError(error));
+        throw new Error(`Invalid chart specification:\n${errorMessages.join('\n')}`);
+      }
+    } catch (error: any) {
+      if (error.message.includes('Unknown chart type')) {
+        throw new Error(`${validationMessages.invalidChartType}. Found: ${chartType}`);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Format validation error into user-friendly message
+   */
+  private formatValidationError(error: any): string {
+    const { instancePath, message, params } = error;
+    const field = instancePath.replace('/', '') || 'root';
+    
+    // Custom error messages for common cases
+    if (message === 'must be equal to one of the allowed values') {
+      if (field === 'theme') {
+        return `❌ ${validationMessages.invalidTheme}. Found: ${params?.allowedValue || 'unknown'}`;
+      }
+      if (field === 'type') {
+        return `❌ ${validationMessages.invalidChartType}. Found: ${params?.allowedValue || 'unknown'}`;
+      }
+    }
+    
+    if (message === 'must have required property') {
+      return `❌ ${validationMessages.missingRequiredField(params.missingProperty)}`;
+    }
+    
+    if (message?.includes('minimum')) {
+      return `❌ Field '${field}' must be greater than or equal to ${params?.limit}`;
+    }
+    
+    if (message?.includes('items')) {
+      return `❌ Field '${field}' contains invalid items. ${message}`;
+    }
+    
+    if (field === 'sets' && message?.includes('minItems')) {
+      return `❌ ${validationMessages.insufficientSets}`;
+    }
+    
+    if (field === 'sets' && message?.includes('maxItems')) {
+      return `❌ ${validationMessages.tooManySets}`;
+    }
+    
+    if (field.includes('points') && message?.includes('minItems')) {
+      return `❌ ${validationMessages.insufficientPoints}`;
+    }
+    
+    // Default formatted message
+    return `❌ Field '${field}': ${message}`;
   }
 
   /**

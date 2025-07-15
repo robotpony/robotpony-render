@@ -43,3 +43,4 @@ Thumbs.db
 bin/cli.d.ts.map
 bin/list.d.ts.map
 package-lock.json
+.github/*

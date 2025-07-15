@@ -2,7 +2,7 @@
  * CLI integration tests
  */
 
-import { spawn, SpawnOptions } from 'child_process';
+import { spawn } from 'child_process';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { createTempFile, cleanupTempFiles } from '../helpers/test-utils';

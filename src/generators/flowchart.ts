@@ -122,8 +122,8 @@ export class FlowchartGenerator extends SVGRenderer {
     const { x, y, width, height, type, text, color } = node;
     
     let shape = '';
-    let textX = x;
-    let textY = y;
+    const textX = x;
+    const textY = y;
     
     // Default colors
     const fillColor = color || (type === 'diamond' ? '#4a5568' : '#8b4513');

@@ -27,7 +27,7 @@ export async function cleanupTempFiles(): Promise<void> {
   const tempDir = path.join(__dirname, '..', 'temp');
   try {
     await fs.rm(tempDir, { recursive: true, force: true });
-  } catch (error) {
+  } catch {
     // Ignore errors if directory doesn't exist
   }
 }

@@ -82,7 +82,7 @@ export abstract class SVGRenderer {
   /**
    * Apply theme styles to SVG (deprecated - use getThemeStyles directly)
    */
-  protected applyTheme(_svg: any): void {
+  protected applyTheme(): void {
     // This method is now deprecated since we're building SVG as strings
     // Use getThemeStyles() directly in the render method
   }
@@ -91,60 +91,9 @@ export abstract class SVGRenderer {
    * Get CSS styles for the current theme
    */
   protected getThemeStyles(): string {
-    const themes: Record<string, string> = {
-      default: `
-        .chart-title { font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; text-anchor: middle; }
-        .set-label { font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; fill: #333; }
-        .venn-circle { fill: rgba(31, 119, 180, 0.3); stroke: rgba(31, 119, 180, 0.8); stroke-width: 2; }
-        .venn-circle.set-a { fill: rgba(31, 119, 180, 0.3); stroke: rgba(31, 119, 180, 0.8); }
-        .venn-circle.set-b { fill: rgba(255, 127, 14, 0.3); stroke: rgba(255, 127, 14, 0.8); }
-        .venn-circle.set-c { fill: rgba(44, 160, 44, 0.3); stroke: rgba(44, 160, 44, 0.8); }
-      `,
-      rp: `
-        .chart-title { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 24px; font-weight: 300; text-anchor: middle; fill: #2c3e50; }
-        .set-label { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; text-anchor: middle; fill: #34495e; font-weight: 500; }
-        .venn-circle { stroke-width: 3; }
-        .venn-circle.set-a { fill: rgba(52, 152, 219, 0.4); stroke: rgba(52, 152, 219, 1); }
-        .venn-circle.set-b { fill: rgba(231, 76, 60, 0.4); stroke: rgba(231, 76, 60, 1); }
-        .venn-circle.set-c { fill: rgba(46, 204, 113, 0.4); stroke: rgba(46, 204, 113, 1); }
-        .intersection-label { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 14px; text-anchor: middle; fill: #2c3e50; font-weight: 600; }
-      `,
-      robotpony: `
-        .chart-title { font-family: 'Courier New', Monaco, Consolas, monospace; font-size: 18px; font-weight: bold; text-anchor: middle; fill: #333; letter-spacing: 1px; }
-        .set-label { font-family: 'Courier New', Monaco, Consolas, monospace; font-size: 16px; font-weight: bold; text-anchor: middle; fill: white; letter-spacing: 2px; }
-        .venn-circle { stroke-width: 2; opacity: 0.8; }
-        .intersection-label { 
-          font-family: 'Courier New', Monaco, Consolas, monospace; 
-          font-size: 12px; 
-          font-weight: bold; 
-          text-anchor: middle; 
-          fill: white; 
-          letter-spacing: 1px;
-        }
-        .intersection-badge { 
-          fill: #2c3e50; 
-          stroke: #2c3e50; 
-          stroke-width: 2; 
-          rx: 8; 
-          ry: 8; 
-        }
-        .connector-line { 
-          stroke: #2c3e50; 
-          stroke-width: 2; 
-          fill: none; 
-        }
-        /* Flowchart styles */
-        .flowchart-shape { stroke-width: 2; opacity: 0.9; }
-        .node-text { font-family: 'Courier New', Monaco, Consolas, monospace; font-size: 12px; font-weight: bold; fill: white; text-anchor: middle; }
-        .connection-line { stroke: #2c3e50; stroke-width: 2; fill: none; }
-        .connection-label { font-family: 'Courier New', Monaco, Consolas, monospace; font-size: 10px; fill: #2c3e50; font-weight: bold; }
-        .arrowhead { fill: #2c3e50; }
-        .flowchart-caption { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #2c3e50; }
-        .flowchart-subtitle { font-family: Arial, sans-serif; font-size: 12px; fill: #666; }
-      `
-    };
-    
-    return themes[this.theme] || themes.default;
+    const { getTheme, themeToCSS } = require('../themes');
+    const theme = getTheme(this.theme);
+    return themeToCSS(theme);
   }
 
   /**

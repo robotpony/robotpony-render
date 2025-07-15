@@ -1,0 +1,46 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg"><defs>
+      <!-- Subtle texture pattern for vintage comic look -->
+      <pattern id="vintage-texture" patternUnits="userSpaceOnUse" width="4" height="4">
+        <rect width="4" height="4" fill="rgba(255,255,255,0.02)"/>
+        <circle cx="2" cy="2" r="0.5" fill="rgba(0,0,0,0.03)"/>
+      </pattern>
+      
+      <!-- Gradient definitions for depth -->
+      <radialGradient id="circle-gradient-blue" cx="30%" cy="30%">
+        <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+        <stop offset="100%" style="stop-color:rgba(0,0,0,0.1);stop-opacity:1" />
+      </radialGradient>
+      
+      <radialGradient id="circle-gradient-green" cx="30%" cy="30%">
+        <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+        <stop offset="100%" style="stop-color:rgba(0,0,0,0.1);stop-opacity:1" />
+      </radialGradient>
+      
+      <radialGradient id="circle-gradient-orange" cx="30%" cy="30%">
+        <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+        <stop offset="100%" style="stop-color:rgba(0,0,0,0.1);stop-opacity:1" />
+      </radialGradient>
+      
+      <!-- Drop shadow filter -->
+      <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+      </filter>
+    </defs><rect width="100%" height="100%" fill="#d4c5a9"/><defs><style type="text/css">
+    .chart-title { font-family: "Courier New", Monaco, Consolas, monospace; font-size: 18px; font-weight: bold; text-anchor: middle; fill: #333; letter-spacing: 1px; }
+    .set-label { font-family: "Courier New", Monaco, Consolas, monospace; font-size: 16px; font-weight: bold; text-anchor: middle; fill: white; letter-spacing: 2px; }
+    .venn-circle { stroke-width: 2; opacity: 0.8; }
+    .intersection-label { font-family: "Courier New", Monaco, Consolas, monospace; font-size: 12px; font-weight: bold; text-anchor: middle; fill: white; letter-spacing: 1px; }
+    .intersection-badge { fill: #2c3e50; stroke: #2c3e50; stroke-width: 2; rx: 8; ry: 8; }
+    .connector-line { stroke: #2c3e50; stroke-width: 2; fill: none; }
+    .axis-line { stroke: #333; stroke-width: 2; fill: none; }
+    .axis-label { font-family: "Courier New", Monaco, Consolas, monospace; font-size: 14px; font-weight: bold; fill: #333; letter-spacing: 1px; }
+    .plot-line { stroke: #333; stroke-width: 2; fill: none; }
+    .caption-box { fill: #2c3e50; stroke: #2c3e50; stroke-width: 1; rx: 4; ry: 4; }
+    .caption-text { font-family: "Courier New", Monaco, Consolas, monospace; font-size: 11px; font-weight: bold; text-anchor: middle; fill: white; letter-spacing: 1px; }
+    .caption-connector { stroke: #333; stroke-width: 1; fill: none; }
+    
+    /* Dynamic color classes */
+    .venn-circle.set-a { fill: rgba(159, 182, 101, 0.4); stroke: #9fb665; }
+    .venn-circle.set-b { fill: rgba(200, 152, 107, 0.4); stroke: #c8986b; }
+    .venn-circle.set-c { fill: rgba(123, 162, 63, 0.4); stroke: #7ba23f; }
+  </style></defs><circle class="venn-circle" cx="400" cy="213.6" r="108" fill="#3498db" stroke="#3498db" filter="url(#drop-shadow)"/><circle cx="400" cy="213.6" r="108" fill="url(#circle-gradient-blue)" opacity="0.6"/><circle cx="400" cy="213.6" r="108" fill="url(#vintage-texture)"/><circle class="venn-circle" cx="313.6" cy="386.4" r="108" fill="#3498db" stroke="#3498db" filter="url(#drop-shadow)"/><circle cx="313.6" cy="386.4" r="108" fill="url(#circle-gradient-blue)" opacity="0.6"/><circle cx="313.6" cy="386.4" r="108" fill="url(#vintage-texture)"/><circle class="venn-circle" cx="486.4" cy="386.4" r="108" fill="#9fb665" stroke="#9fb665" filter="url(#drop-shadow)"/><circle cx="486.4" cy="386.4" r="108" fill="url(#circle-gradient-green)" opacity="0.6"/><circle cx="486.4" cy="386.4" r="108" fill="url(#vintage-texture)"/><text class="set-label" x="400" y="213.6">COOKIE</text><text class="set-label" x="313.6" y="386.4">C</text><text class="set-label" x="486.4" y="386.4">ME</text></svg>
