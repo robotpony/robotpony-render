@@ -11,6 +11,7 @@ import {
   getLineDashArray, 
   dataToSVGCoordinates, 
   createSmoothPath,
+  createOrganicPath,
   ChartMargin
 } from '../utils/chart';
 
@@ -148,8 +149,10 @@ export class PlotGenerator extends SVGRenderer {
       dataToSVGCoordinates(x, y, margin, chartWidth, chartHeight, data.x_range, data.y_range)
     );
     
-    // Create smooth curve path
-    const pathData = createSmoothPath(svgPoints);
+    // Create smooth curve path - use organic curves for robotpony theme
+    const pathData = this.theme === 'robotpony' ? 
+      createOrganicPath(svgPoints) : 
+      createSmoothPath(svgPoints);
     
     const lineClass = `plot-line ${line.style || 'solid'}`;
     const lineColor = line.color || '#333';

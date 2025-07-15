@@ -119,13 +119,39 @@ export class VennDiagramGenerator extends SVGRenderer {
       }
       
     } else if (data.sets.length === 3) {
-      // Three circle venn diagram with improved positioning
-      const circle1X = centerX;
-      const circle1Y = centerY - offset * 0.7; // Better vertical spacing
-      const circle2X = centerX - offset * 0.85; // Optimized horizontal positioning
-      const circle2Y = centerY + offset * 0.5;
-      const circle3X = centerX + offset * 0.85;
-      const circle3Y = centerY + offset * 0.5;
+      // Three circle venn diagram with organic positioning like robotpony comics
+      let circle1X, circle1Y, circle1R;
+      let circle2X, circle2Y, circle2R;
+      let circle3X, circle3Y, circle3R;
+      
+      if (this.getCurrentTheme().name === 'robotpony') {
+        // Organic layout mimicking the reference c-is-for-cookie.png
+        // Large main circle (COOKIE) at center-right
+        circle1X = centerX + offset * 0.3;
+        circle1Y = centerY - offset * 0.3;
+        circle1R = radius * 1.4; // Larger main circle
+        
+        // Medium circle (C) at top-right, smaller
+        circle2X = centerX + offset * 1.2;
+        circle2Y = centerY - offset * 1.1;
+        circle2R = radius * 0.8; // Smaller secondary circle
+        
+        // Small circle (ME) at bottom-left
+        circle3X = centerX - offset * 0.8;
+        circle3Y = centerY + offset * 0.8;
+        circle3R = radius * 0.7; // Smallest circle
+      } else {
+        // Standard symmetric layout for other themes
+        circle1X = centerX;
+        circle1Y = centerY - offset * 0.7;
+        circle1R = radius;
+        circle2X = centerX - offset * 0.85;
+        circle2Y = centerY + offset * 0.5;
+        circle2R = radius;
+        circle3X = centerX + offset * 0.85;
+        circle3Y = centerY + offset * 0.5;
+        circle3R = radius;
+      }
       
       // Draw circles with custom colors
       const color1 = this.getSetColor(0, data.sets[0].color);
@@ -134,24 +160,24 @@ export class VennDiagramGenerator extends SVGRenderer {
       
       // Draw circles with enhanced styling for robotpony theme
       if (this.getCurrentTheme().name === 'robotpony') {
-        // Circle 1
-        svg += `<circle class="venn-circle" cx="${circle1X}" cy="${circle1Y}" r="${radius}" fill="${color1}" stroke="${color1}" filter="url(#drop-shadow)"/>`;
-        svg += `<circle cx="${circle1X}" cy="${circle1Y}" r="${radius}" fill="${this.getGradientOverlay(color1)}" opacity="0.6"/>`;
-        svg += `<circle cx="${circle1X}" cy="${circle1Y}" r="${radius}" fill="url(#vintage-texture)"/>`;
+        // Circle 1 (largest)
+        svg += `<circle class="venn-circle" cx="${circle1X}" cy="${circle1Y}" r="${circle1R}" fill="${color1}" stroke="${color1}" filter="url(#drop-shadow)"/>`;
+        svg += `<circle cx="${circle1X}" cy="${circle1Y}" r="${circle1R}" fill="${this.getGradientOverlay(color1)}" opacity="0.6"/>`;
+        svg += `<circle cx="${circle1X}" cy="${circle1Y}" r="${circle1R}" fill="url(#vintage-texture)"/>`;
         
-        // Circle 2  
-        svg += `<circle class="venn-circle" cx="${circle2X}" cy="${circle2Y}" r="${radius}" fill="${color2}" stroke="${color2}" filter="url(#drop-shadow)"/>`;
-        svg += `<circle cx="${circle2X}" cy="${circle2Y}" r="${radius}" fill="${this.getGradientOverlay(color2)}" opacity="0.6"/>`;
-        svg += `<circle cx="${circle2X}" cy="${circle2Y}" r="${radius}" fill="url(#vintage-texture)"/>`;
+        // Circle 2 (medium)
+        svg += `<circle class="venn-circle" cx="${circle2X}" cy="${circle2Y}" r="${circle2R}" fill="${color2}" stroke="${color2}" filter="url(#drop-shadow)"/>`;
+        svg += `<circle cx="${circle2X}" cy="${circle2Y}" r="${circle2R}" fill="${this.getGradientOverlay(color2)}" opacity="0.6"/>`;
+        svg += `<circle cx="${circle2X}" cy="${circle2Y}" r="${circle2R}" fill="url(#vintage-texture)"/>`;
         
-        // Circle 3
-        svg += `<circle class="venn-circle" cx="${circle3X}" cy="${circle3Y}" r="${radius}" fill="${color3}" stroke="${color3}" filter="url(#drop-shadow)"/>`;
-        svg += `<circle cx="${circle3X}" cy="${circle3Y}" r="${radius}" fill="${this.getGradientOverlay(color3)}" opacity="0.6"/>`;
-        svg += `<circle cx="${circle3X}" cy="${circle3Y}" r="${radius}" fill="url(#vintage-texture)"/>`;
+        // Circle 3 (smallest)
+        svg += `<circle class="venn-circle" cx="${circle3X}" cy="${circle3Y}" r="${circle3R}" fill="${color3}" stroke="${color3}" filter="url(#drop-shadow)"/>`;
+        svg += `<circle cx="${circle3X}" cy="${circle3Y}" r="${circle3R}" fill="${this.getGradientOverlay(color3)}" opacity="0.6"/>`;
+        svg += `<circle cx="${circle3X}" cy="${circle3Y}" r="${circle3R}" fill="url(#vintage-texture)"/>`;
       } else {
-        svg += `<circle class="venn-circle" cx="${circle1X}" cy="${circle1Y}" r="${radius}" fill="${color1}" stroke="${color1}"/>`;
-        svg += `<circle class="venn-circle" cx="${circle2X}" cy="${circle2Y}" r="${radius}" fill="${color2}" stroke="${color2}"/>`;
-        svg += `<circle class="venn-circle" cx="${circle3X}" cy="${circle3Y}" r="${radius}" fill="${color3}" stroke="${color3}"/>`;
+        svg += `<circle class="venn-circle" cx="${circle1X}" cy="${circle1Y}" r="${circle1R}" fill="${color1}" stroke="${color1}"/>`;
+        svg += `<circle class="venn-circle" cx="${circle2X}" cy="${circle2Y}" r="${circle2R}" fill="${color2}" stroke="${color2}"/>`;
+        svg += `<circle class="venn-circle" cx="${circle3X}" cy="${circle3Y}" r="${circle3R}" fill="${color3}" stroke="${color3}"/>`;
       }
       
       // Add labels centered in circles

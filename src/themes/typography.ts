@@ -87,6 +87,12 @@ export const comicFonts: Record<string, FontDefinition> = {
     fallbacks: ['Monaco', 'Consolas', 'Lucida Console', 'monospace'],
     weights: [400, 700],
     styles: ['normal']
+  },
+  'bitmap': {
+    family: 'Courier New',
+    fallbacks: ['Monaco', 'Consolas', 'monospace'],
+    weights: [700],
+    styles: ['normal']
   }
 };
 
@@ -102,99 +108,99 @@ export function buildFontFamily(fontKey: string): string {
 // Typography scales for different themes
 export const robotponyTypography: TypographyScale = {
   h1: {
-    fontFamily: buildFontFamily('pixelated'),
+    fontFamily: buildFontFamily('bitmap'),
     fontSize: 24,
     fontWeight: 700,
-    lineHeight: 1.2,
-    letterSpacing: 1,
+    lineHeight: 1.1,
+    letterSpacing: 2,
     textAnchor: 'middle',
     fill: '#2F2F2F',
     textShadow: [
-      { offsetX: 2, offsetY: 2, blur: 0, color: '#ffffff', opacity: 0.8 },
-      { offsetX: 3, offsetY: 3, blur: 2, color: '#000000', opacity: 0.3 }
+      { offsetX: 1, offsetY: 1, blur: 0, color: '#ffffff', opacity: 1 },
+      { offsetX: 2, offsetY: 2, blur: 0, color: '#000000', opacity: 0.4 }
     ],
     textOutline: {
       width: 1,
       color: '#2c3e50',
-      opacity: 0.7
+      opacity: 0.8
     }
   },
   h2: {
-    fontFamily: buildFontFamily('pixelated'),
+    fontFamily: buildFontFamily('bitmap'),
     fontSize: 18,
     fontWeight: 700,
-    lineHeight: 1.3,
-    letterSpacing: 1,
+    lineHeight: 1.1,
+    letterSpacing: 2,
     textAnchor: 'middle',
     fill: '#2F2F2F',
     textShadow: [
-      { offsetX: 1, offsetY: 1, blur: 0, color: '#ffffff', opacity: 0.8 }
+      { offsetX: 1, offsetY: 1, blur: 0, color: '#ffffff', opacity: 1 }
     ]
   },
   h3: {
-    fontFamily: buildFontFamily('pixelated'),
+    fontFamily: buildFontFamily('bitmap'),
     fontSize: 16,
     fontWeight: 700,
-    lineHeight: 1.4,
-    letterSpacing: 1,
+    lineHeight: 1.1,
+    letterSpacing: 2,
     textAnchor: 'middle',
     fill: '#2F2F2F'
   },
   body: {
-    fontFamily: buildFontFamily('pixelated'),
+    fontFamily: buildFontFamily('bitmap'),
     fontSize: 14,
     fontWeight: 700,
-    lineHeight: 1.5,
-    letterSpacing: 1,
+    lineHeight: 1.2,
+    letterSpacing: 2,
     textAnchor: 'start',
     fill: '#2F2F2F'
   },
   caption: {
-    fontFamily: buildFontFamily('comic-mono'),
+    fontFamily: buildFontFamily('bitmap'),
     fontSize: 11,
     fontWeight: 700,
-    lineHeight: 1.3,
+    lineHeight: 1.1,
     letterSpacing: 1,
     textAnchor: 'middle',
     fill: '#ffffff',
     backgroundColor: '#2c3e50',
     backgroundPadding: 4,
-    backgroundRadius: 4,
+    backgroundRadius: 3,
     textShadow: [
-      { offsetX: 1, offsetY: 1, blur: 0, color: '#000000', opacity: 0.3 }
+      { offsetX: 1, offsetY: 1, blur: 0, color: '#000000', opacity: 0.6 }
     ]
   },
   label: {
-    fontFamily: buildFontFamily('pixelated'),
+    fontFamily: buildFontFamily('bitmap'),
     fontSize: 14,
     fontWeight: 700,
-    lineHeight: 1.2,
-    letterSpacing: 1,
+    lineHeight: 1.1,
+    letterSpacing: 2,
     textAnchor: 'middle',
     fill: '#ffffff',
     textShadow: [
-      { offsetX: 1, offsetY: 1, blur: 0, color: '#000000', opacity: 0.8 }
+      { offsetX: 1, offsetY: 1, blur: 0, color: '#000000', opacity: 1 }
     ],
     textOutline: {
       width: 1,
       color: '#2c3e50',
-      opacity: 0.9
+      opacity: 1
     }
   },
   emphasis: {
-    fontFamily: buildFontFamily('comic-title'),
+    fontFamily: buildFontFamily('bitmap'),
     fontSize: 20,
-    fontWeight: 900,
+    fontWeight: 700,
     lineHeight: 1.1,
     letterSpacing: 3,
     textAnchor: 'middle',
     fill: '#d4c5a9',
     textShadow: [
-      { offsetX: 3, offsetY: 3, blur: 0, color: '#2c3e50', opacity: 1 },
-      { offsetX: 2, offsetY: 2, blur: 4, color: '#000000', opacity: 0.5 }
+      { offsetX: 2, offsetY: 2, blur: 0, color: '#2c3e50', opacity: 1 },
+      { offsetX: 1, offsetY: 1, blur: 0, color: '#000000', opacity: 0.8 }
     ],
     textOutline: {
-      width: 3,
+      width: 1,
       color: '#2c3e50',
       opacity: 1
     }
@@ -281,6 +287,25 @@ export function textStyleToSVG(style: TextStyle): string {
 export function generateTextEffectDefs(typography: TypographyScale): string {
   let defs = '';
   
+  // Add pixelated/bitmap text effect filter
+  defs += `
+    <filter id="pixelate-text" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="0" result="smooth"/>
+      <feComponentTransfer>
+        <feFuncA type="discrete" tableValues="0 .5 1"/>
+      </feComponentTransfer>
+      <feColorMatrix type="saturate" values="2"/>
+    </filter>
+    
+    <filter id="bitmap-effect" x="-50%" y="-50%" width="200%" height="200%">
+      <feFlood flood-color="#ffffff" result="bg"/>
+      <feComposite in="SourceGraphic" in2="bg" operator="over"/>
+      <feComponentTransfer>
+        <feFuncA type="discrete" tableValues="0 .3 .7 1"/>
+      </feComponentTransfer>
+    </filter>
+  `;
+  
   // Generate filters for text shadows and outlines
   Object.entries(typography).forEach(([key, style]) => {
     if (style.textShadow && style.textShadow.length > 0) {
@@ -307,6 +332,50 @@ export function generateTextEffectDefs(typography: TypographyScale): string {
   });
   
   return defs;
+}
+
+/**
+ * Generate bitmap-style text rendering for robotpony theme
+ */
+export function generateBitmapText(text: string, x: number, y: number, style: TextStyle): string {
+  // Create pixelated effect by rendering text with specific styling
+  const spacing = style.letterSpacing || 2;
+  
+  return `
+    <g class="bitmap-text-group">
+      <!-- Background shadow for depth -->
+      <text x="${x + 1}" y="${y + 1}" 
+            font-family="${style.fontFamily}" 
+            font-size="${style.fontSize}px" 
+            font-weight="${style.fontWeight}"
+            letter-spacing="${spacing}px"
+            text-anchor="${style.textAnchor || 'middle'}"
+            fill="#000000" 
+            opacity="0.6"
+            filter="url(#bitmap-effect)">${text}</text>
+      
+      <!-- Main text with bitmap styling -->
+      <text x="${x}" y="${y}" 
+            font-family="${style.fontFamily}" 
+            font-size="${style.fontSize}px" 
+            font-weight="${style.fontWeight}"
+            letter-spacing="${spacing}px"
+            text-anchor="${style.textAnchor || 'middle'}"
+            fill="${style.fill || '#000000'}"
+            filter="url(#pixelate-text)"
+            style="image-rendering: pixelated; shape-rendering: crispEdges;">${text}</text>
+      
+      <!-- Highlight for vintage effect -->
+      <text x="${x - 1}" y="${y - 1}" 
+            font-family="${style.fontFamily}" 
+            font-size="${style.fontSize}px" 
+            font-weight="${style.fontWeight}"
+            letter-spacing="${spacing}px"
+            text-anchor="${style.textAnchor || 'middle'}"
+            fill="#ffffff" 
+            opacity="0.4">${text}</text>
+    </g>
+  `;
 }
 
 /**

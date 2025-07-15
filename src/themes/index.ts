@@ -104,10 +104,10 @@ export const robotponyTheme: Theme = {
     captionConnector: 'stroke: #333; stroke-width: 1; fill: none;'
   },
   colors: {
-    primary: '#5B9BD5', // Steel blue - most common in actual Robotpony.ca images
-    secondary: '#7CB342', // Android green - second most common
-    accent: '#CD853F', // Peru/tan - warm earth tone
-    background: '#F5DEB3', // Warm beige background (authentic to images)
+    primary: '#4A6B7C', // Darker steel blue to match reference images
+    secondary: '#8BA446', // Olive green to match reference style  
+    accent: '#B8860B', // Dark goldenrod for variety
+    background: '#d4c5a9', // Exact beige from reference images
     text: '#2F2F2F' // Dark text for better contrast
   }
 };
