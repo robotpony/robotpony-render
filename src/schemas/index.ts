@@ -76,7 +76,9 @@ export const plotSchema = {
     line: {
       type: 'object',
       properties: {
-        style: { type: 'string', enum: ['solid', 'dotted', 'dashed'] },
+        style: { type: 'string', enum: ['solid', 'dotted', 'dashed', 'dash-dot'] },
+        color: { type: 'string' },
+        width: { type: 'number' },
         points: {
           type: 'array',
           items: {
@@ -89,6 +91,63 @@ export const plotSchema = {
         }
       },
       required: ['points'],
+      additionalProperties: false
+    },
+    lines: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          style: { type: 'string', enum: ['solid', 'dotted', 'dashed', 'dash-dot'] },
+          color: { type: 'string' },
+          width: { type: 'number' },
+          label: { type: 'string' },
+          points: {
+            type: 'array',
+            items: {
+              type: 'array',
+              items: { type: 'number' },
+              minItems: 2,
+              maxItems: 2
+            },
+            minItems: 2
+          }
+        },
+        required: ['points'],
+        additionalProperties: false
+      }
+    },
+    markers: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          type: { type: 'string', enum: ['circle', 'square', 'triangle', 'diamond'] },
+          size: { type: 'number' },
+          color: { type: 'string' },
+          x: { type: 'number' },
+          y: { type: 'number' },
+          label: { type: 'string' }
+        },
+        required: ['x', 'y'],
+        additionalProperties: false
+      }
+    },
+    grid: {
+      type: 'object',
+      properties: {
+        show: { type: 'boolean' },
+        color: { type: 'string' },
+        style: { type: 'string', enum: ['solid', 'dotted', 'dashed'] }
+      },
+      additionalProperties: false
+    },
+    legend: {
+      type: 'object',
+      properties: {
+        show: { type: 'boolean' },
+        position: { type: 'string', enum: ['top-right', 'top-left', 'bottom-right', 'bottom-left'] }
+      },
       additionalProperties: false
     },
     captions: {
@@ -105,7 +164,11 @@ export const plotSchema = {
       }
     }
   },
-  required: ['type', 'x_axis', 'y_axis', 'line'],
+  required: ['type', 'x_axis', 'y_axis'],
+  anyOf: [
+    { required: ['line'] },
+    { required: ['lines'] }
+  ],
   additionalProperties: false
 };
 
@@ -184,3 +247,81 @@ export const validationMessages = {
   emptyNodes: 'Flowcharts require at least one node',
   invalidConnection: 'Connections must reference existing node IDs'
 };
+
+/**
+ * Color suggestions for typos
+ */
+export const colorSuggestions: Record<string, string> = {
+  'oliv': 'olive',
+  'oragne': 'orange',
+  'organge': 'orange',
+  'orage': 'orange',
+  'blu': 'blue',
+  'bleu': 'blue',
+  'gren': 'green',
+  'grean': 'green',
+  'purpl': 'purple',
+  'purpel': 'purple',
+  'yelow': 'yellow',
+  'yello': 'yellow',
+  'gray': 'grey',
+  'blak': 'black',
+  'balck': 'black',
+  'whit': 'white',
+  'beig': 'beige',
+  'beige': 'beige'
+};
+
+/**
+ * Get suggestion for potentially misspelled color
+ */
+export function getColorSuggestion(color: string): string | null {
+  const lowerColor = color.toLowerCase();
+  
+  // Exact match
+  if (colorSuggestions[lowerColor]) {
+    return colorSuggestions[lowerColor];
+  }
+  
+  // Fuzzy matching for common typos
+  const validColors = ['olive', 'orange', 'beige', 'blue', 'red', 'green', 'purple', 'yellow', 'grey', 'gray', 'black', 'white'];
+  
+  for (const validColor of validColors) {
+    if (levenshteinDistance(lowerColor, validColor) <= 2) {
+      return validColor;
+    }
+  }
+  
+  return null;
+}
+
+/**
+ * Calculate Levenshtein distance for fuzzy matching
+ */
+function levenshteinDistance(str1: string, str2: string): number {
+  const matrix = [];
+  
+  for (let i = 0; i <= str2.length; i++) {
+    matrix[i] = [i];
+  }
+  
+  for (let j = 0; j <= str1.length; j++) {
+    matrix[0][j] = j;
+  }
+  
+  for (let i = 1; i <= str2.length; i++) {
+    for (let j = 1; j <= str1.length; j++) {
+      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  
+  return matrix[str2.length][str1.length];
+}

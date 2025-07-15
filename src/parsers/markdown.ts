@@ -6,7 +6,7 @@
 import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
 import Ajv from 'ajv';
-import { getSchemaForType, validationMessages } from '../schemas';
+import { getSchemaForType, validationMessages, getColorSuggestion } from '../schemas';
 
 export interface ChartSpec {
   type: 'venn' | 'flowchart' | 'plot' | 'bar' | 'line' | 'pie';
@@ -54,15 +54,41 @@ export interface PlotData {
   y_axis: string;
   x_range: [number, number];
   y_range: [number, number];
-  line: {
-    style?: 'solid' | 'dotted' | 'dashed';
+  lines?: Array<{
+    style?: 'solid' | 'dotted' | 'dashed' | 'dash-dot';
+    color?: string;
+    width?: number;
+    points: Array<[number, number]>;
+    label?: string;
+  }>;
+  line?: {
+    style?: 'solid' | 'dotted' | 'dashed' | 'dash-dot';
+    color?: string;
+    width?: number;
     points: Array<[number, number]>;
   };
+  markers?: Array<{
+    type?: 'circle' | 'square' | 'triangle' | 'diamond';
+    size?: number;
+    color?: string;
+    x: number;
+    y: number;
+    label?: string;
+  }>;
   captions: Array<{
     text: string;
     x: number;
     y: number;
   }>;
+  grid?: {
+    show?: boolean;
+    color?: string;
+    style?: 'solid' | 'dotted' | 'dashed';
+  };
+  legend?: {
+    show?: boolean;
+    position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
+  };
   background?: string;
 }
 
@@ -300,12 +326,58 @@ export class MarkdownParser {
       y_axis: frontmatter.y_axis || 'Y',
       x_range: frontmatter.x_range || [0, 10],
       y_range: frontmatter.y_range || [0, 10],
-      line: {
-        style: frontmatter.line?.style || 'solid',
-        points: frontmatter.line?.points || [[0, 0], [10, 10]]
-      },
       captions: []
     };
+
+    // Handle legacy single line format
+    if (frontmatter.line) {
+      plotData.line = {
+        style: frontmatter.line.style || 'solid',
+        color: frontmatter.line.color ? this.parseColorValue(frontmatter.line.color) : undefined,
+        width: frontmatter.line.width || 2,
+        points: frontmatter.line.points || [[0, 0], [10, 10]]
+      };
+    }
+
+    // Handle multiple lines format
+    if (frontmatter.lines && Array.isArray(frontmatter.lines)) {
+      plotData.lines = frontmatter.lines.map((line: any) => ({
+        style: line.style || 'solid',
+        color: line.color ? this.parseColorValue(line.color) : undefined,
+        width: line.width || 2,
+        points: line.points || [],
+        label: line.label
+      }));
+    }
+
+    // Parse markers
+    if (frontmatter.markers && Array.isArray(frontmatter.markers)) {
+      plotData.markers = frontmatter.markers.map((marker: any) => ({
+        type: marker.type || 'circle',
+        size: marker.size || 6,
+        color: marker.color ? this.parseColorValue(marker.color) : undefined,
+        x: marker.x || 0,
+        y: marker.y || 0,
+        label: marker.label
+      }));
+    }
+
+    // Parse grid settings
+    if (frontmatter.grid) {
+      plotData.grid = {
+        show: frontmatter.grid.show !== false,
+        color: frontmatter.grid.color ? this.parseColorValue(frontmatter.grid.color) : '#e0e0e0',
+        style: frontmatter.grid.style || 'dotted'
+      };
+    }
+
+    // Parse legend settings
+    if (frontmatter.legend) {
+      plotData.legend = {
+        show: frontmatter.legend.show !== false,
+        position: frontmatter.legend.position || 'top-right'
+      };
+    }
 
     // Add background if specified
     if (frontmatter.background) {
@@ -387,7 +459,7 @@ export class MarkdownParser {
   }
 
   /**
-   * Convert natural color names to hex values
+   * Convert natural color names to hex values with suggestions for typos
    */
   private parseColorValue(colorName: string): string {
     const colorMap: Record<string, string> = {
@@ -410,8 +482,21 @@ export class MarkdownParser {
       return colorName;
     }
     
-    // Return mapped color or original if not found
-    return colorMap[colorName.toLowerCase()] || colorName;
+    const lowerColor = colorName.toLowerCase();
+    
+    // Return mapped color if found
+    if (colorMap[lowerColor]) {
+      return colorMap[lowerColor];
+    }
+    
+    // Check for suggestions and provide helpful error
+    const suggestion = getColorSuggestion(colorName);
+    if (suggestion) {
+      throw new Error(`❌ Unknown color '${colorName}'. Did you mean '${suggestion}'?`);
+    }
+    
+    // If no suggestion, return original (might be a valid hex or CSS color)
+    return colorName;
   }
 
 }

@@ -28,8 +28,8 @@ export class VennDiagramGenerator extends SVGRenderer {
     // Calculate positions for circles with improved proportions
     const centerY = this.height / 2;
     const centerX = this.width / 2;
-    const radius = Math.min(this.width, this.height) * 0.18; // Increased from 0.15 for better visibility
-    const offset = radius * 0.8; // Slightly increased overlap for better visual balance
+    const radius = Math.min(this.width, this.height) * 0.2; // Optimized size for readability
+    const offset = radius * 0.9; // Better overlap calculation for visual appeal
     
     if (data.sets.length === 2) {
       // Two circle venn diagram
@@ -83,13 +83,13 @@ export class VennDiagramGenerator extends SVGRenderer {
       }
       
     } else if (data.sets.length === 3) {
-      // Three circle venn diagram
+      // Three circle venn diagram with improved positioning
       const circle1X = centerX;
-      const circle1Y = centerY - offset;
-      const circle2X = centerX - offset;
-      const circle2Y = centerY + offset;
-      const circle3X = centerX + offset;
-      const circle3Y = centerY + offset;
+      const circle1Y = centerY - offset * 0.7; // Better vertical spacing
+      const circle2X = centerX - offset * 0.85; // Optimized horizontal positioning
+      const circle2Y = centerY + offset * 0.5;
+      const circle3X = centerX + offset * 0.85;
+      const circle3Y = centerY + offset * 0.5;
       
       // Draw circles with custom colors
       const color1 = this.getSetColor(0, data.sets[0].color);
