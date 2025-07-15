@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is `graphinate` - a **focused** tool for generating SVG/PNG charts from markdown. 
+This is `graphinate` - a **focused** tool for generating SVG/PNG charts from markdown.
 
 **Current Reality**: Feature-complete CLI with extensive comic-style utilities that may exceed core requirements.
 
@@ -22,11 +22,12 @@ graphinate input.md output.png --theme=rp --type=plot
 
 ## Development Workflow
 
-1. Outline your tasks in tasks/ directory as markdown files, named by the feature name
-2. Create incremental, testable changes
-3. Verify each change works before proceeding
-4. Keep code functional, clear, and simple
-5. Minimize scope of each change
+1. Outline your tasks in tasks/ directory as markdown files, named by the feature name.
+2. Create incremental, testable changes.
+3. Verify each change works before proceeding.
+4. Keep code functional, clear, and simple.
+5. Minimize scope of each change.
+6. Ensure examples cover all chart types and themes.
 
 ## Technical Architecture
 
@@ -37,10 +38,7 @@ graphinate input.md output.png --theme=rp --type=plot
 - **Utils**: `src/utils/` - Comic text effects, font management, accessibility
 
 ### Current Implementation Status
-- ✅ Advanced comic-style text rendering with speech bubbles, emphasis effects
-- ✅ Font performance optimization and caching system
-- ✅ Comprehensive CLI with theme listing and previews
-- ⚠️ Complex comic utilities may be over-engineered for current use cases
+
 
 ### Technology Stack
 - **Core**: TypeScript/Node.js with comprehensive tooling (Jest, ESLint, Sharp, D3)
@@ -50,20 +48,6 @@ graphinate input.md output.png --theme=rp --type=plot
 
 ## Current Implementation Reality
 
-### Working Core (Keep Simple)
-- ✅ CLI with commander.js - focus on core chart generation only
-- ✅ Markdown parsing with frontmatter
-- ✅ Basic venn/plot generation
-- ✅ SVG/PNG output
-- ✅ Comprehensive test suite with Jest
-- ✅ Working examples in `/examples` directory
-
-### Complex Features (Evaluate Need)
-- ⚠️ Comic text utilities (`comic-text.ts`, `text-renderer.ts`) - May be over-engineered
-- ⚠️ Font performance system - Unnecessary for SVG generation
-- ⚠️ Advanced typography features - Consider if actually needed
-- ⚠️ Theme system (structure exists, needs implementation)
-- ⚠️ Flowchart generation (partial implementation)
 
 ### Priority: Simplify Before Enhancing
 Before adding new features, evaluate if existing complex utilities are actually being used.
@@ -71,10 +55,8 @@ Before adding new features, evaluate if existing complex utilities are actually 
 ## Code Quality Focus
 
 ### Complexity Management
-- **Avoid feature creep**: Each utility should have a single, clear purpose
 - **Prefer composition over inheritance**: Use factory patterns sparingly
 - **Minimize dependencies**: Question each new utility before adding
-- **Performance-first**: Comic effects should be opt-in, not default
 
 ### File Size Targets
 - Individual files should stay under 200 lines
@@ -103,7 +85,7 @@ Before adding new features, evaluate if existing complex utilities are actually 
 
 ### Focus Areas for Quality Improvement
 1. **Rendering accuracy** - Core chart generation quality
-2. **Theme consistency** - Ensure themes work across all chart types  
+2. **Theme consistency** - Ensure themes work across all chart types
 3. **Error handling** - Better validation and user feedback
 4. **Performance** - Optimize hot paths in generators, not peripheral utilities
 

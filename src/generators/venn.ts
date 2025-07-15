@@ -6,6 +6,7 @@ import { SVGRenderer, RenderOptions } from '../renderers/svg';
 import { ChartSpec, VennData } from '../parsers/markdown';
 import { getAccessibleTextColor } from '../utils/accessibility';
 import { getTheme, Theme } from '../themes';
+import { renderMultilineText } from '../utils/text';
 
 export class VennDiagramGenerator extends SVGRenderer {
   constructor(options: RenderOptions = {}) {
@@ -19,30 +20,6 @@ export class VennDiagramGenerator extends SVGRenderer {
     return getTheme(this.theme);
   }
 
-  /**
-   * Render text with multi-line support
-   */
-  private renderText(text: string, x: number, y: number, className: string, fill?: string): string {
-    const lines = text.split('\n');
-    if (lines.length === 1) {
-      const fillAttr = fill ? ` fill="${fill}"` : '';
-      return `<text class="${className}" x="${x}" y="${y}"${fillAttr}>${text}</text>`;
-    }
-
-    // Multi-line text
-    let svg = `<g class="${className}">`;
-    const lineHeight = 18;
-    const startY = y - ((lines.length - 1) * lineHeight) / 2;
-    
-    lines.forEach((line, index) => {
-      const lineY = startY + (index * lineHeight);
-      const fillAttr = fill ? ` fill="${fill}"` : '';
-      svg += `<text x="${x}" y="${lineY}"${fillAttr}>${line}</text>`;
-    });
-    
-    svg += '</g>';
-    return svg;
-  }
 
   /**
    * Render venn diagram to SVG string
@@ -54,9 +31,12 @@ export class VennDiagramGenerator extends SVGRenderer {
     // Add styles
     svg += this.generateStyles();
     
-    // Add title if provided with simple rendering
+    // Add title if provided
     if (chartSpec.title) {
-      svg += this.renderText(chartSpec.title, this.width / 2, 40, 'chart-title');
+      svg += renderMultilineText(chartSpec.title, this.width / 2, 40, { 
+        class: 'chart-title',
+        textAnchor: 'middle'
+      });
     }
     
     // Calculate positions for circles with improved proportions
@@ -88,12 +68,20 @@ export class VennDiagramGenerator extends SVGRenderer {
         svg += `<circle class="venn-circle" cx="${circle2X}" cy="${centerY}" r="${radius}" fill="${color2}" stroke="${color2}"/>`;
       }
       
-      // Add labels centered in circles with simple rendering
+      // Add labels centered in circles
       const textColor1 = getAccessibleTextColor(color1, false);
       const textColor2 = getAccessibleTextColor(color2, false);
       
-      svg += this.renderText(data.sets[0].name, circle1X, centerY, 'set-label', textColor1);
-      svg += this.renderText(data.sets[1].name, circle2X, centerY, 'set-label', textColor2);
+      svg += renderMultilineText(data.sets[0].name, circle1X, centerY, { 
+        class: 'set-label',
+        textAnchor: 'middle',
+        fill: textColor1
+      });
+      svg += renderMultilineText(data.sets[1].name, circle2X, centerY, { 
+        class: 'set-label',
+        textAnchor: 'middle',
+        fill: textColor2
+      });
       
       // Add intersection label if exists
       if (data.intersections && data.intersections.length > 0) {
@@ -118,9 +106,15 @@ export class VennDiagramGenerator extends SVGRenderer {
           svg += `<rect class="intersection-badge" x="${centerX - badgeWidth/2}" y="${bracketY + 5}" width="${badgeWidth}" height="${badgeHeight}"/>`;
           
           // Add intersection text below bracket
-          svg += this.renderText(labelText, centerX, bracketY + 20, 'intersection-label');
+          svg += renderMultilineText(labelText, centerX, bracketY + 20, { 
+            class: 'intersection-label',
+            textAnchor: 'middle'
+          });
         } else {
-          svg += this.renderText(labelText, centerX, centerY + 5, 'intersection-label');
+          svg += renderMultilineText(labelText, centerX, centerY + 5, { 
+            class: 'intersection-label',
+            textAnchor: 'middle'
+          });
         }
       }
       
@@ -160,14 +154,26 @@ export class VennDiagramGenerator extends SVGRenderer {
         svg += `<circle class="venn-circle" cx="${circle3X}" cy="${circle3Y}" r="${radius}" fill="${color3}" stroke="${color3}"/>`;
       }
       
-      // Add labels centered in circles with simple rendering
+      // Add labels centered in circles
       const textColor1 = getAccessibleTextColor(color1, false);
       const textColor2 = getAccessibleTextColor(color2, false);
       const textColor3 = getAccessibleTextColor(color3, false);
       
-      svg += this.renderText(data.sets[0].name, circle1X, circle1Y, 'set-label', textColor1);
-      svg += this.renderText(data.sets[1].name, circle2X, circle2Y, 'set-label', textColor2);
-      svg += this.renderText(data.sets[2].name, circle3X, circle3Y, 'set-label', textColor3);
+      svg += renderMultilineText(data.sets[0].name, circle1X, circle1Y, { 
+        class: 'set-label',
+        textAnchor: 'middle',
+        fill: textColor1
+      });
+      svg += renderMultilineText(data.sets[1].name, circle2X, circle2Y, { 
+        class: 'set-label',
+        textAnchor: 'middle',
+        fill: textColor2
+      });
+      svg += renderMultilineText(data.sets[2].name, circle3X, circle3Y, { 
+        class: 'set-label',
+        textAnchor: 'middle',
+        fill: textColor3
+      });
     }
     
     svg += this.closeSVG();

@@ -83,10 +83,9 @@ export const comicFonts: Record<string, FontDefinition> = {
     styles: ['normal']
   },
   'pixelated': {
-    family: 'Press Start 2P',
-    fallbacks: ['Courier New', 'Monaco', 'Consolas', 'monospace'],
-    webFontUrl: 'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap',
-    weights: [400],
+    family: 'Courier New',
+    fallbacks: ['Monaco', 'Consolas', 'Lucida Console', 'monospace'],
+    weights: [400, 700],
     styles: ['normal']
   }
 };
@@ -103,13 +102,13 @@ export function buildFontFamily(fontKey: string): string {
 // Typography scales for different themes
 export const robotponyTypography: TypographyScale = {
   h1: {
-    fontFamily: buildFontFamily('comic-title'),
+    fontFamily: buildFontFamily('pixelated'),
     fontSize: 24,
     fontWeight: 700,
     lineHeight: 1.2,
     letterSpacing: 1,
     textAnchor: 'middle',
-    fill: '#2c3e50',
+    fill: '#2F2F2F',
     textShadow: [
       { offsetX: 2, offsetY: 2, blur: 0, color: '#ffffff', opacity: 0.8 },
       { offsetX: 3, offsetY: 3, blur: 2, color: '#000000', opacity: 0.3 }
@@ -121,34 +120,34 @@ export const robotponyTypography: TypographyScale = {
     }
   },
   h2: {
-    fontFamily: buildFontFamily('comic-title'),
+    fontFamily: buildFontFamily('pixelated'),
     fontSize: 18,
     fontWeight: 700,
     lineHeight: 1.3,
-    letterSpacing: 0.5,
+    letterSpacing: 1,
     textAnchor: 'middle',
-    fill: '#2c3e50',
+    fill: '#2F2F2F',
     textShadow: [
       { offsetX: 1, offsetY: 1, blur: 0, color: '#ffffff', opacity: 0.8 }
     ]
   },
   h3: {
-    fontFamily: buildFontFamily('comic-body'),
+    fontFamily: buildFontFamily('pixelated'),
     fontSize: 16,
-    fontWeight: 400,
+    fontWeight: 700,
     lineHeight: 1.4,
-    letterSpacing: 0.5,
+    letterSpacing: 1,
     textAnchor: 'middle',
-    fill: '#2c3e50'
+    fill: '#2F2F2F'
   },
   body: {
-    fontFamily: buildFontFamily('comic-body'),
+    fontFamily: buildFontFamily('pixelated'),
     fontSize: 14,
-    fontWeight: 400,
+    fontWeight: 700,
     lineHeight: 1.5,
-    letterSpacing: 0,
+    letterSpacing: 1,
     textAnchor: 'start',
-    fill: '#333333'
+    fill: '#2F2F2F'
   },
   caption: {
     fontFamily: buildFontFamily('comic-mono'),
@@ -168,7 +167,7 @@ export const robotponyTypography: TypographyScale = {
   label: {
     fontFamily: buildFontFamily('pixelated'),
     fontSize: 14,
-    fontWeight: 400,
+    fontWeight: 700,
     lineHeight: 1.2,
     letterSpacing: 1,
     textAnchor: 'middle',

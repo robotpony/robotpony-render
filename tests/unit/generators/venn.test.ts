@@ -88,7 +88,7 @@ describe('VennDiagramGenerator', () => {
       
       // Extract first venn circle center and first text position
       const circleMatch = svg.match(/<circle[^>]*class="venn-circle"[^>]*cx="([^"]+)"[^>]*cy="([^"]+)"/);
-      const textMatch = svg.match(/<text[^>]*class="set-label"[^>]*x="([^"]+)"[^>]*y="([^"]+)"/);
+      const textMatch = svg.match(/<text[^>]*x="([^"]+)"[^>]*y="([^"]+)"[^>]*text-anchor="middle"/);
       
       expect(circleMatch).toBeTruthy();
       expect(textMatch).toBeTruthy();

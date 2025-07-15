@@ -4,6 +4,15 @@
 
 import { SVGRenderer, RenderOptions } from '../renderers/svg';
 import { ChartSpec, PlotData } from '../parsers/markdown';
+import { renderText } from '../utils/text';
+import { 
+  drawGrid, 
+  drawAxes, 
+  getLineDashArray, 
+  dataToSVGCoordinates, 
+  createSmoothPath,
+  ChartMargin
+} from '../utils/chart';
 
 export class PlotGenerator extends SVGRenderer {
   constructor(options: RenderOptions = {}) {
@@ -21,22 +30,23 @@ export class PlotGenerator extends SVGRenderer {
     svg += this.generateStyles();
     
     // Chart margins
-    const margin = { top: 60, right: 80, bottom: 80, left: 80 };
+    const margin: ChartMargin = { top: 60, right: 80, bottom: 80, left: 80 };
     const chartWidth = this.width - margin.left - margin.right;
     const chartHeight = this.height - margin.top - margin.bottom;
     
     // Add title if provided
     if (chartSpec.title) {
-      svg += `<text class="chart-title" x="${this.width / 2}" y="30">${chartSpec.title}</text>`;
+      svg += renderText(chartSpec.title, this.width / 2, 30, {
+        class: 'chart-title',
+        textAnchor: 'middle'
+      });
     }
     
     // Draw grid if enabled
-    if (data.grid?.show) {
-      svg += this.drawGrid(margin, chartWidth, chartHeight, data);
-    }
+    svg += drawGrid(margin, chartWidth, chartHeight, data.grid || {});
     
     // Draw axes
-    svg += this.drawAxes(margin, chartWidth, chartHeight, data);
+    svg += drawAxes(margin, chartWidth, chartHeight, data.x_axis, data.y_axis);
     
     // Draw plot lines (both single and multiple)
     svg += this.drawPlotLines(margin, chartWidth, chartHeight, data);
@@ -105,69 +115,11 @@ export class PlotGenerator extends SVGRenderer {
     return `<defs><style type="text/css">${baseStyles}${plotStyles}</style></defs>`;
   }
 
-  /**
-   * Draw X and Y axes with labels
-   */
-  private drawAxes(margin: any, chartWidth: number, chartHeight: number, data: PlotData): string {
-    let svg = '';
-    
-    const originX = margin.left;
-    const originY = margin.top + chartHeight;
-    
-    // Draw X axis
-    svg += `<line class="axis-line" x1="${originX}" y1="${originY}" x2="${originX + chartWidth}" y2="${originY}"/>`;
-    
-    // Draw Y axis
-    svg += `<line class="axis-line" x1="${originX}" y1="${originY}" x2="${originX}" y2="${margin.top}"/>`;
-    
-    // X axis label
-    svg += `<text class="axis-label" x="${originX + chartWidth / 2}" y="${originY + 40}" text-anchor="middle">${data.x_axis}</text>`;
-    
-    // Y axis label (rotated)
-    svg += `<text class="axis-label" x="${originX - 40}" y="${margin.top + chartHeight / 2}" text-anchor="middle" transform="rotate(-90 ${originX - 40} ${margin.top + chartHeight / 2})">${data.y_axis}</text>`;
-    
-    // Add "+" and "-" symbols at axis ends
-    svg += `<text class="axis-label" x="${originX + chartWidth + 10}" y="${originY + 5}" font-size="16">+</text>`;
-    svg += `<text class="axis-label" x="${originX - 10}" y="${margin.top - 5}" font-size="16">+</text>`;
-    svg += `<text class="axis-label" x="${originX - 10}" y="${originY + 5}" font-size="16">-</text>`;
-    svg += `<text class="axis-label" x="${originX + chartWidth + 10}" y="${originY + 20}" font-size="16">-</text>`;
-    
-    return svg;
-  }
-
-  /**
-   * Draw grid lines
-   */
-  private drawGrid(margin: any, chartWidth: number, chartHeight: number, data: PlotData): string {
-    if (!data.grid?.show) return '';
-    
-    let svg = '';
-    const originX = margin.left;
-    const originY = margin.top + chartHeight;
-    const gridColor = data.grid.color || '#e0e0e0';
-    const gridStyle = data.grid.style || 'dotted';
-    
-    // Vertical grid lines
-    const xStep = chartWidth / 10;
-    for (let i = 1; i < 10; i++) {
-      const x = originX + i * xStep;
-      svg += `<line x1="${x}" y1="${margin.top}" x2="${x}" y2="${originY}" stroke="${gridColor}" stroke-dasharray="${gridStyle === 'dotted' ? '2,2' : gridStyle === 'dashed' ? '5,5' : 'none'}" stroke-width="1"/>`;
-    }
-    
-    // Horizontal grid lines
-    const yStep = chartHeight / 10;
-    for (let i = 1; i < 10; i++) {
-      const y = margin.top + i * yStep;
-      svg += `<line x1="${originX}" y1="${y}" x2="${originX + chartWidth}" y2="${y}" stroke="${gridColor}" stroke-dasharray="${gridStyle === 'dotted' ? '2,2' : gridStyle === 'dashed' ? '5,5' : 'none'}" stroke-width="1"/>`;
-    }
-    
-    return svg;
-  }
 
   /**
    * Draw all plot lines (both single and multiple)
    */
-  private drawPlotLines(margin: any, chartWidth: number, chartHeight: number, data: PlotData): string {
+  private drawPlotLines(margin: ChartMargin, chartWidth: number, chartHeight: number, data: PlotData): string {
     let svg = '';
     
     // Draw legacy single line
@@ -190,92 +142,57 @@ export class PlotGenerator extends SVGRenderer {
   /**
    * Draw a single plot line
    */
-  private drawSingleLine(margin: any, chartWidth: number, chartHeight: number, line: any, data: PlotData): string {
-    const originX = margin.left;
-    const originY = margin.top + chartHeight;
-    
+  private drawSingleLine(margin: ChartMargin, chartWidth: number, chartHeight: number, line: any, data: PlotData): string {
     // Convert data coordinates to SVG coordinates
-    const svgPoints = line.points.map(([x, y]: [number, number]) => {
-      const svgX = originX + (x - data.x_range[0]) / (data.x_range[1] - data.x_range[0]) * chartWidth;
-      const svgY = originY - (y - data.y_range[0]) / (data.y_range[1] - data.y_range[0]) * chartHeight;
-      return [svgX, svgY];
-    });
+    const svgPoints = line.points.map(([x, y]: [number, number]) => 
+      dataToSVGCoordinates(x, y, margin, chartWidth, chartHeight, data.x_range, data.y_range)
+    );
     
-    // Create smooth curve using cubic bezier paths
-    let pathData = `M ${svgPoints[0][0]} ${svgPoints[0][1]}`;
-    
-    for (let i = 1; i < svgPoints.length; i++) {
-      const prevPoint = svgPoints[i - 1];
-      const currPoint = svgPoints[i];
-      
-      // Simple smooth curve using quadratic bezier
-      const controlX = (prevPoint[0] + currPoint[0]) / 2;
-      const controlY = (prevPoint[1] + currPoint[1]) / 2;
-      
-      if (i === 1) {
-        pathData += ` Q ${controlX} ${controlY} ${currPoint[0]} ${currPoint[1]}`;
-      } else {
-        pathData += ` T ${currPoint[0]} ${currPoint[1]}`;
-      }
-    }
+    // Create smooth curve path
+    const pathData = createSmoothPath(svgPoints);
     
     const lineClass = `plot-line ${line.style || 'solid'}`;
     const lineColor = line.color || '#333';
     const lineWidth = line.width || 2;
-    const dashArray = this.getLineDashArray(line.style);
+    const dashArray = getLineDashArray(line.style);
     
     return `<path class="${lineClass}" d="${pathData}" stroke="${lineColor}" stroke-width="${lineWidth}" stroke-dasharray="${dashArray}" fill="none"/>`;
   }
 
   /**
-   * Get dash array for line style
-   */
-  private getLineDashArray(style?: string): string {
-    switch (style) {
-      case 'dotted': return '4,4';
-      case 'dashed': return '8,4';
-      case 'dash-dot': return '8,4,2,4';
-      default: return 'none';
-    }
-  }
-
-  /**
    * Draw markers
    */
-  private drawMarkers(margin: any, chartWidth: number, chartHeight: number, data: PlotData): string {
+  private drawMarkers(margin: ChartMargin, chartWidth: number, chartHeight: number, data: PlotData): string {
     if (!data.markers) return '';
     
     let svg = '';
-    const originX = margin.left;
-    const originY = margin.top + chartHeight;
     
     for (const marker of data.markers) {
-      const markerX = originX + (marker.x - data.x_range[0]) / (data.x_range[1] - data.x_range[0]) * chartWidth;
-      const markerY = originY - (marker.y - data.y_range[0]) / (data.y_range[1] - data.y_range[0]) * chartHeight;
+      const point = dataToSVGCoordinates(marker.x, marker.y, margin, chartWidth, chartHeight, data.x_range, data.y_range);
       const size = marker.size || 6;
       const color = marker.color || '#333';
       
       switch (marker.type) {
         case 'circle':
-          svg += `<circle cx="${markerX}" cy="${markerY}" r="${size}" fill="${color}" stroke="${color}"/>`;
+          svg += `<circle cx="${point.x}" cy="${point.y}" r="${size}" fill="${color}" stroke="${color}"/>`;
           break;
         case 'square':
-          svg += `<rect x="${markerX - size}" y="${markerY - size}" width="${size * 2}" height="${size * 2}" fill="${color}" stroke="${color}"/>`;
+          svg += `<rect x="${point.x - size}" y="${point.y - size}" width="${size * 2}" height="${size * 2}" fill="${color}" stroke="${color}"/>`;
           break;
         case 'triangle':
           const points = [
-            `${markerX},${markerY - size}`,
-            `${markerX - size},${markerY + size}`,
-            `${markerX + size},${markerY + size}`
+            `${point.x},${point.y - size}`,
+            `${point.x - size},${point.y + size}`,
+            `${point.x + size},${point.y + size}`
           ].join(' ');
           svg += `<polygon points="${points}" fill="${color}" stroke="${color}"/>`;
           break;
         case 'diamond':
           const diamondPoints = [
-            `${markerX},${markerY - size}`,
-            `${markerX + size},${markerY}`,
-            `${markerX},${markerY + size}`,
-            `${markerX - size},${markerY}`
+            `${point.x},${point.y - size}`,
+            `${point.x + size},${point.y}`,
+            `${point.x},${point.y + size}`,
+            `${point.x - size},${point.y}`
           ].join(' ');
           svg += `<polygon points="${diamondPoints}" fill="${color}" stroke="${color}"/>`;
           break;
@@ -283,7 +200,10 @@ export class PlotGenerator extends SVGRenderer {
       
       // Add marker label if provided
       if (marker.label) {
-        svg += `<text x="${markerX + size + 5}" y="${markerY - size}" class="marker-label" fill="${color}">${marker.label}</text>`;
+        svg += renderText(marker.label, point.x + size + 5, point.y - size, {
+          class: 'marker-label',
+          fill: color
+        });
       }
     }
     
@@ -293,7 +213,7 @@ export class PlotGenerator extends SVGRenderer {
   /**
    * Draw legend
    */
-  private drawLegend(margin: any, chartWidth: number, chartHeight: number, data: PlotData): string {
+  private drawLegend(margin: ChartMargin, chartWidth: number, chartHeight: number, data: PlotData): string {
     const legendItems: Array<{label: string, color: string, style: string}> = [];
     
     // Add single line to legend
@@ -355,13 +275,16 @@ export class PlotGenerator extends SVGRenderer {
     for (let i = 0; i < legendItems.length; i++) {
       const item = legendItems[i];
       const itemY = legendY + 15 + i * 25;
-      const dashArray = this.getLineDashArray(item.style);
+      const dashArray = getLineDashArray(item.style);
       
       // Legend line sample
       svg += `<line x1="${legendX + 10}" y1="${itemY}" x2="${legendX + 30}" y2="${itemY}" stroke="${item.color}" stroke-width="2" stroke-dasharray="${dashArray}"/>`;
       
       // Legend text
-      svg += `<text x="${legendX + 35}" y="${itemY + 4}" class="legend-text" fill="#333">${item.label}</text>`;
+      svg += renderText(item.label, legendX + 35, itemY + 4, {
+        class: 'legend-text',
+        fill: '#333'
+      });
     }
     
     return svg;
@@ -370,46 +293,45 @@ export class PlotGenerator extends SVGRenderer {
   /**
    * Draw caption boxes with connector lines
    */
-  private drawCaptions(margin: any, chartWidth: number, chartHeight: number, data: PlotData): string {
+  private drawCaptions(margin: ChartMargin, chartWidth: number, chartHeight: number, data: PlotData): string {
     let svg = '';
-    
-    const originX = margin.left;
-    const originY = margin.top + chartHeight;
     
     data.captions.forEach(caption => {
       // Convert caption coordinates to SVG coordinates
-      const pointX = originX + (caption.x - data.x_range[0]) / (data.x_range[1] - data.x_range[0]) * chartWidth;
-      const pointY = originY - (caption.y - data.y_range[0]) / (data.y_range[1] - data.y_range[0]) * chartHeight;
+      const point = dataToSVGCoordinates(caption.x, caption.y, margin, chartWidth, chartHeight, data.x_range, data.y_range);
       
       // Calculate caption box dimensions
       const textWidth = caption.text.length * 7 + 16; // Approximate text width
       const textHeight = 18;
       
       // Position caption box to avoid overlaps (simple positioning logic)
-      let boxX = pointX + 20;
-      let boxY = pointY - textHeight / 2;
+      let boxX = point.x + 20;
+      let boxY = point.y - textHeight / 2;
       
       // Adjust position if it goes outside chart bounds
       if (boxX + textWidth > margin.left + chartWidth) {
-        boxX = pointX - textWidth - 20;
+        boxX = point.x - textWidth - 20;
       }
       if (boxY < margin.top) {
-        boxY = pointY + 20;
+        boxY = point.y + 20;
       }
       if (boxY + textHeight > margin.top + chartHeight) {
-        boxY = pointY - textHeight - 20;
+        boxY = point.y - textHeight - 20;
       }
       
       // Draw connector line from point to caption box
       const boxCenterX = boxX + textWidth / 2;
       const boxCenterY = boxY + textHeight / 2;
-      svg += `<line class="caption-connector" x1="${pointX}" y1="${pointY}" x2="${boxCenterX}" y2="${boxCenterY}"/>`;
+      svg += `<line class="caption-connector" x1="${point.x}" y1="${point.y}" x2="${boxCenterX}" y2="${boxCenterY}"/>`;
       
       // Draw caption box
       svg += `<rect class="caption-box" x="${boxX}" y="${boxY}" width="${textWidth}" height="${textHeight}"/>`;
       
       // Draw caption text
-      svg += `<text class="caption-text" x="${boxX + textWidth / 2}" y="${boxY + textHeight / 2 + 4}">${caption.text}</text>`;
+      svg += renderText(caption.text, boxX + textWidth / 2, boxY + textHeight / 2 + 4, {
+        class: 'caption-text',
+        textAnchor: 'middle'
+      });
     });
     
     return svg;

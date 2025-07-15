@@ -140,7 +140,7 @@ export class FlowchartGenerator extends SVGRenderer {
       default:
         const rectX = x - width / 2;
         const rectY = y - height / 2;
-        shape = `<rect x="${rectX}" y="${rectY}" width="${width}" height="${height}" rx="8" ry="8" fill="${fillColor}" stroke="${fillColor}" class="flowchart-shape"/>`;
+        shape = `<rect x="${rectX}" y="${rectY}" width="${width}" height="${height}" rx="12" ry="12" fill="${fillColor}" stroke="${fillColor}" class="flowchart-shape"/>`;
         break;
     }
     

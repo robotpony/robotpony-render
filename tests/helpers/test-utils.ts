@@ -10,7 +10,9 @@ import { ChartSpec, VennData, PlotData, FlowchartData } from '../../src/parsers/
  * Create a temporary test file with given content
  */
 export async function createTempFile(content: string, extension = '.md'): Promise<string> {
-  const tempDir = path.join(__dirname, '..', 'temp');
+  // Use a consistent temp directory relative to project root
+  const projectRoot = path.resolve(__dirname, '..', '..');
+  const tempDir = path.join(projectRoot, 'tests', 'temp');
   await fs.mkdir(tempDir, { recursive: true });
   
   const filename = `test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}${extension}`;
@@ -24,7 +26,8 @@ export async function createTempFile(content: string, extension = '.md'): Promis
  * Clean up temporary test files
  */
 export async function cleanupTempFiles(): Promise<void> {
-  const tempDir = path.join(__dirname, '..', 'temp');
+  const projectRoot = path.resolve(__dirname, '..', '..');
+  const tempDir = path.join(projectRoot, 'tests', 'temp');
   try {
     await fs.rm(tempDir, { recursive: true, force: true });
   } catch {

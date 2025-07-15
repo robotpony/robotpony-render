@@ -94,21 +94,21 @@ export const robotponyTheme: Theme = {
     setLabel: textStyleToSVG(robotponyTypography.label),
     vennCircle: 'stroke-width: 2; opacity: 0.8;',
     intersectionLabel: textStyleToSVG(robotponyTypography.caption),
-    intersectionBadge: 'fill: #2c3e50; stroke: #2c3e50; stroke-width: 2; rx: 8; ry: 8;',
+    intersectionBadge: 'fill: #2c3e50; stroke: #2c3e50; stroke-width: 2; rx: 12; ry: 12;',
     connectorLine: 'stroke: #2c3e50; stroke-width: 2; fill: none;',
     axisLine: 'stroke: #333; stroke-width: 2; fill: none;',
     axisLabel: textStyleToSVG(robotponyTypography.body),
     plotLine: 'stroke: #333; stroke-width: 2; fill: none;',
-    captionBox: 'fill: #2c3e50; stroke: #2c3e50; stroke-width: 1; rx: 4; ry: 4;',
+    captionBox: 'fill: #2c3e50; stroke: #2c3e50; stroke-width: 2; rx: 8; ry: 8;',
     captionText: textStyleToSVG(robotponyTypography.caption),
     captionConnector: 'stroke: #333; stroke-width: 1; fill: none;'
   },
   colors: {
-    primary: '#8B2635', // dark red/burgundy (from comic left circle)
-    secondary: '#2C2C2C', // black (from comic right circle)
-    accent: '#F4D03F', // yellow (from comic intersection)
-    background: '#ffffff', // white background
-    text: '#333333'
+    primary: '#5B9BD5', // Steel blue - most common in actual Robotpony.ca images
+    secondary: '#7CB342', // Android green - second most common
+    accent: '#CD853F', // Peru/tan - warm earth tone
+    background: '#F5DEB3', // Warm beige background (authentic to images)
+    text: '#2F2F2F' // Dark text for better contrast
   }
 };
 
