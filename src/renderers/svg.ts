@@ -73,10 +73,27 @@ export abstract class SVGRenderer {
   }
 
   /**
+   * Add watermark for robotpony theme
+   */
+  protected addWatermark(): string {
+    const { getTheme } = require('../themes');
+    const theme = getTheme(this.theme);
+    
+    if (theme.name === 'robotpony') {
+      const watermarkX = this.width - 10;
+      const watermarkY = this.height - 10;
+      
+      return `<text x="${watermarkX}" y="${watermarkY}" font-family="monospace" font-size="10" fill="#999" opacity="0.7" text-anchor="end">ROBOTPONY.CA</text>`;
+    }
+    
+    return '';
+  }
+
+  /**
    * Close SVG tag
    */
   protected closeSVG(): string {
-    return '</svg>';
+    return this.addWatermark() + '</svg>';
   }
 
   /**

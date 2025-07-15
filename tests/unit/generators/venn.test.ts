@@ -109,7 +109,7 @@ describe('VennDiagramGenerator', () => {
       expect(svg).toContain('filter="url(#drop-shadow)"');
       expect(svg).toContain('fill="url(#circle-gradient-');
       expect(svg).toContain('fill="url(#vintage-texture)"');
-      expect(svg).toContain('font-family: \"Courier New\"');
+      expect(svg).toContain('font-family: \"Courier Prime\"');
     });
 
     it('should not apply enhancements for default theme', async () => {

@@ -4,9 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an image generation tool called `graphinate` that reads markdown files and renders SVG or PNG images for venn diagrams, plot graphs, and flowcharts.
+This is `graphinate` - a **focused** tool for generating SVG/PNG charts from markdown. 
 
-**Current Status**: Fully functional implementation with TypeScript codebase. Working on rendering quality.
+**Current Reality**: Feature-complete CLI with extensive comic-style utilities that may exceed core requirements.
+
+**Quality Focus**: Improve core chart rendering accuracy and theme consistency rather than adding more features.
+
+**Architecture Principle**: Simple, testable components that solve the core problem well.
 
 ## Command Structure
 
@@ -24,35 +28,84 @@ graphinate input.md output.png --theme=rp --type=plot
 4. Keep code functional, clear, and simple
 5. Minimize scope of each change
 
-## Current Architecture
+## Technical Architecture
 
-- **Structure**: `src/` for components, `bin/` for executables, `tests/` for testing
-- **Technology**: TypeScript/Node.js with comprehensive tooling (Jest, ESLint, Sharp, D3)
+### Core Components
+- **CLI**: `src/cli/index.ts` - Full-featured command interface with theme preview
+- **Generators**: `src/generators/` - Chart-specific rendering (venn, plot, flowchart)
+- **Renderers**: `src/renderers/` - SVG output and factory pattern
+- **Utils**: `src/utils/` - Comic text effects, font management, accessibility
+
+### Current Implementation Status
+- ✅ Advanced comic-style text rendering with speech bubbles, emphasis effects
+- ✅ Font performance optimization and caching system
+- ✅ Comprehensive CLI with theme listing and previews
+- ⚠️ Complex comic utilities may be over-engineered for current use cases
+
+### Technology Stack
+- **Core**: TypeScript/Node.js with comprehensive tooling (Jest, ESLint, Sharp, D3)
 - **Input**: Markdown files with YAML frontmatter
 - **Output**: SVG and PNG images
 - **Chart Types**: Venn diagrams, plot graphs, flowcharts (in development)
-- **Themes**: Theme system partially implemented (needs completion)
 
-## Implemented Features
+## Current Implementation Reality
 
-- ✅ CLI interface with Commander.js
-- ✅ Markdown parsing with frontmatter support
-- ✅ Venn diagram generation using venn.js
-- ✅ Plot graph generation with D3
-- ✅ SVG and PNG output using Sharp
+### Working Core (Keep Simple)
+- ✅ CLI with commander.js - focus on core chart generation only
+- ✅ Markdown parsing with frontmatter
+- ✅ Basic venn/plot generation
+- ✅ SVG/PNG output
 - ✅ Comprehensive test suite with Jest
 - ✅ Working examples in `/examples` directory
+
+### Complex Features (Evaluate Need)
+- ⚠️ Comic text utilities (`comic-text.ts`, `text-renderer.ts`) - May be over-engineered
+- ⚠️ Font performance system - Unnecessary for SVG generation
+- ⚠️ Advanced typography features - Consider if actually needed
 - ⚠️ Theme system (structure exists, needs implementation)
 - ⚠️ Flowchart generation (partial implementation)
 
-## Code Standards
+### Priority: Simplify Before Enhancing
+Before adding new features, evaluate if existing complex utilities are actually being used.
 
+## Code Quality Focus
+
+### Complexity Management
+- **Avoid feature creep**: Each utility should have a single, clear purpose
+- **Prefer composition over inheritance**: Use factory patterns sparingly
+- **Minimize dependencies**: Question each new utility before adding
+- **Performance-first**: Comic effects should be opt-in, not default
+
+### File Size Targets
+- Individual files should stay under 200 lines
+- Utils should be split by clear functional boundaries
+- Remove unused or speculative code (like font caching for server-side rendering)
+
+### Code Standards
 - Clean, simple, functional code
 - Use standard and popular libraries
 - Structured error handling with specific failure modes
 - Concise, purpose-driven function documentation
 - Verify preconditions before critical operations
 - File operations must verify existence and permissions
+
+## Development Constraints
+
+### Before Adding New Features
+1. Run `npm run test` to verify current functionality
+2. Check if existing utilities are actually used in the generators
+3. Consider if feature belongs in core tool vs. external plugin
+
+### Code Simplification Rules
+- Remove commented-out code and TODOs
+- Consolidate similar utilities into single files
+- Eliminate speculative features not used by core generators
+
+### Focus Areas for Quality Improvement
+1. **Rendering accuracy** - Core chart generation quality
+2. **Theme consistency** - Ensure themes work across all chart types  
+3. **Error handling** - Better validation and user feedback
+4. **Performance** - Optimize hot paths in generators, not peripheral utilities
 
 ## Security Guidelines
 

@@ -2,9 +2,12 @@
  * Theme definitions for graphinate
  */
 
+import { TypographyScale, robotponyTypography, defaultTypography, textStyleToSVG } from './typography';
+
 export interface Theme {
   name: string;
   description: string;
+  typography: TypographyScale;
   styles: {
     chartTitle: string;
     setLabel: string;
@@ -31,18 +34,19 @@ export interface Theme {
 export const defaultTheme: Theme = {
   name: 'default',
   description: 'Basic styling with standard colors',
+  typography: defaultTypography,
   styles: {
-    chartTitle: 'font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; text-anchor: middle;',
-    setLabel: 'font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; fill: #333;',
+    chartTitle: textStyleToSVG(defaultTypography.h1),
+    setLabel: textStyleToSVG(defaultTypography.label),
     vennCircle: 'fill: rgba(31, 119, 180, 0.3); stroke: rgba(31, 119, 180, 0.8); stroke-width: 2;',
-    intersectionLabel: 'font-family: Arial, sans-serif; font-size: 12px; text-anchor: middle; fill: #333;',
+    intersectionLabel: textStyleToSVG(defaultTypography.caption),
     intersectionBadge: 'fill: #666; stroke: #666; stroke-width: 1; rx: 4; ry: 4;',
     connectorLine: 'stroke: #666; stroke-width: 1; fill: none;',
     axisLine: 'stroke: #333; stroke-width: 2; fill: none;',
-    axisLabel: 'font-family: Arial, sans-serif; font-size: 14px; fill: #333;',
+    axisLabel: textStyleToSVG(defaultTypography.body),
     plotLine: 'stroke: #333; stroke-width: 2; fill: none;',
     captionBox: 'fill: #666; stroke: #666; stroke-width: 1; rx: 4; ry: 4;',
-    captionText: 'font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; text-anchor: middle; fill: white;',
+    captionText: textStyleToSVG(defaultTypography.caption),
     captionConnector: 'stroke: #333; stroke-width: 1; fill: none;'
   },
   colors: {
@@ -57,6 +61,7 @@ export const defaultTheme: Theme = {
 export const rpTheme: Theme = {
   name: 'rp',
   description: 'Clean, professional styling for technical documentation',
+  typography: defaultTypography,
   styles: {
     chartTitle: 'font-family: "Helvetica Neue", Arial, sans-serif; font-size: 24px; font-weight: 300; text-anchor: middle; fill: #2c3e50;',
     setLabel: 'font-family: "Helvetica Neue", Arial, sans-serif; font-size: 16px; text-anchor: middle; fill: #34495e; font-weight: 500;',
@@ -83,25 +88,26 @@ export const rpTheme: Theme = {
 export const robotponyTheme: Theme = {
   name: 'robotpony',
   description: 'Comic-style theme perfect for Robotpony.ca aesthetic with vintage textures and bold typography',
+  typography: robotponyTypography,
   styles: {
-    chartTitle: 'font-family: "Courier New", Monaco, Consolas, monospace; font-size: 18px; font-weight: bold; text-anchor: middle; fill: #333; letter-spacing: 1px;',
-    setLabel: 'font-family: "Courier New", Monaco, Consolas, monospace; font-size: 16px; font-weight: bold; text-anchor: middle; fill: white; letter-spacing: 2px;',
+    chartTitle: textStyleToSVG(robotponyTypography.h1),
+    setLabel: textStyleToSVG(robotponyTypography.label),
     vennCircle: 'stroke-width: 2; opacity: 0.8;',
-    intersectionLabel: 'font-family: "Courier New", Monaco, Consolas, monospace; font-size: 12px; font-weight: bold; text-anchor: middle; fill: white; letter-spacing: 1px;',
+    intersectionLabel: textStyleToSVG(robotponyTypography.caption),
     intersectionBadge: 'fill: #2c3e50; stroke: #2c3e50; stroke-width: 2; rx: 8; ry: 8;',
     connectorLine: 'stroke: #2c3e50; stroke-width: 2; fill: none;',
     axisLine: 'stroke: #333; stroke-width: 2; fill: none;',
-    axisLabel: 'font-family: "Courier New", Monaco, Consolas, monospace; font-size: 14px; font-weight: bold; fill: #333; letter-spacing: 1px;',
+    axisLabel: textStyleToSVG(robotponyTypography.body),
     plotLine: 'stroke: #333; stroke-width: 2; fill: none;',
     captionBox: 'fill: #2c3e50; stroke: #2c3e50; stroke-width: 1; rx: 4; ry: 4;',
-    captionText: 'font-family: "Courier New", Monaco, Consolas, monospace; font-size: 11px; font-weight: bold; text-anchor: middle; fill: white; letter-spacing: 1px;',
+    captionText: textStyleToSVG(robotponyTypography.caption),
     captionConnector: 'stroke: #333; stroke-width: 1; fill: none;'
   },
   colors: {
-    primary: '#9fb665', // olive
-    secondary: '#c8986b', // orange  
-    accent: '#7ba23f', // darker olive
-    background: '#d4c5a9', // beige
+    primary: '#8B2635', // dark red/burgundy (from comic left circle)
+    secondary: '#2C2C2C', // black (from comic right circle)
+    accent: '#F4D03F', // yellow (from comic intersection)
+    background: '#ffffff', // white background
     text: '#333333'
   }
 };
@@ -145,6 +151,15 @@ export function themeToCSS(theme: Theme): string {
     .caption-box { ${theme.styles.captionBox} }
     .caption-text { ${theme.styles.captionText} }
     .caption-connector { ${theme.styles.captionConnector} }
+    
+    /* Typography classes */
+    .text-h1 { ${textStyleToSVG(theme.typography.h1)} }
+    .text-h2 { ${textStyleToSVG(theme.typography.h2)} }
+    .text-h3 { ${textStyleToSVG(theme.typography.h3)} }
+    .text-body { ${textStyleToSVG(theme.typography.body)} }
+    .text-caption { ${textStyleToSVG(theme.typography.caption)} }
+    .text-label { ${textStyleToSVG(theme.typography.label)} }
+    .text-emphasis { ${textStyleToSVG(theme.typography.emphasis)} }
     
     /* Dynamic color classes */
     .venn-circle.set-a { fill: rgba(${hexToRgb(theme.colors.primary)}, 0.4); stroke: ${theme.colors.primary}; }
