@@ -97,6 +97,38 @@ Use intuitive color names in your diagrams:
 
 ## Advanced Examples
 
+### Overlapping Circles WITH Labels
+When you want to label the intersection area:
+
+```markdown
+---
+type: venn
+theme: robotpony
+background: beige
+
+sets:
+  - Best Practices (olive)
+  - Zen and the Art Of (orange)
+
+overlap: Wishful Thinking
+---
+```
+
+### Overlapping Circles WITHOUT Labels
+When circles overlap but the intersection doesn't need a label:
+
+```markdown
+---
+type: venn
+theme: robotpony
+background: beige
+
+sets:
+  - Design (blue)
+  - Engineering (red)
+---
+```
+
 ### Three Sets
 ```markdown
 ---
@@ -112,20 +144,23 @@ overlap: Pick Any Two
 ---
 ```
 
-### Custom Colors
+### Three Sets with Unlabeled Intersections  
+Perfect for complex relationships where overlaps exist but don't need labels:
+
 ```markdown
 ---
 type: venn
-theme: default
-background: white
+theme: robotpony
+background: beige
 
 sets:
-  - Design (#3498db)
-  - Engineering (#e74c3c)
-
-overlap: Product Management
+  - COOKIE (blue)
+  - C (blue)  
+  - ME (olive)
 ---
 ```
+
+**Note**: All Venn diagrams create overlapping circles by design. The difference is whether intersection areas are labeled with text or left unlabeled.
 
 ## Command Line Options
 

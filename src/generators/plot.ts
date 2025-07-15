@@ -50,7 +50,7 @@ export class PlotGenerator extends SVGRenderer {
     const baseStyles = this.getThemeStyles();
     const plotStyles = `
       .axis-line { stroke: #333; stroke-width: 2; fill: none; }
-      .axis-label { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #333; }
+      .axis-label { font-family: 'Courier New', Monaco, Consolas, monospace; font-size: 14px; font-weight: bold; fill: #333; letter-spacing: 1px; }
       .plot-line { stroke: #333; stroke-width: 2; fill: none; }
       .plot-line.dotted { stroke-dasharray: 4,4; }
       .plot-line.dashed { stroke-dasharray: 8,4; }
@@ -62,11 +62,12 @@ export class PlotGenerator extends SVGRenderer {
         ry: 4; 
       }
       .caption-text { 
-        font-family: Arial, sans-serif; 
+        font-family: 'Courier New', Monaco, Consolas, monospace; 
         font-size: 11px; 
         font-weight: bold; 
         text-anchor: middle; 
         fill: white; 
+        letter-spacing: 1px;
       }
       .caption-connector { 
         stroke: #333; 
