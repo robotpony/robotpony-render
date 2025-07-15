@@ -1,0 +1,32 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#d4c5a9"/><defs><style type="text/css">
+        .chart-title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; text-anchor: middle; fill: #333; }
+        .set-label { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; text-anchor: middle; fill: white; }
+        .venn-circle { stroke-width: 2; opacity: 0.8; }
+        .intersection-label { 
+          font-family: Arial, sans-serif; 
+          font-size: 12px; 
+          font-weight: bold; 
+          text-anchor: middle; 
+          fill: white; 
+        }
+        .intersection-badge { 
+          fill: #2c3e50; 
+          stroke: #2c3e50; 
+          stroke-width: 2; 
+          rx: 8; 
+          ry: 8; 
+        }
+        .connector-line { 
+          stroke: #2c3e50; 
+          stroke-width: 2; 
+          fill: none; 
+        }
+        /* Flowchart styles */
+        .flowchart-shape { stroke-width: 2; opacity: 0.9; }
+        .node-text { font-family: 'Courier New', Monaco, Consolas, monospace; font-size: 12px; font-weight: bold; fill: white; text-anchor: middle; }
+        .connection-line { stroke: #2c3e50; stroke-width: 2; fill: none; }
+        .connection-label { font-family: 'Courier New', Monaco, Consolas, monospace; font-size: 10px; fill: #2c3e50; font-weight: bold; }
+        .arrowhead { fill: #2c3e50; }
+        .flowchart-caption { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #2c3e50; }
+        .flowchart-subtitle { font-family: Arial, sans-serif; font-size: 12px; fill: #666; }
+      </style></defs><circle class="venn-circle" cx="337" cy="300" r="90" fill="#3498db" stroke="#3498db"/><circle class="venn-circle" cx="463" cy="300" r="90" fill="#e74c3c" stroke="#e74c3c"/><text class="set-label" x="301" y="300">Design</text><text class="set-label" x="499" y="300">Engineering</text></svg>
