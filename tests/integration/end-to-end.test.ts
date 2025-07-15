@@ -52,6 +52,8 @@ type: plot
 theme: robotpony
 x_axis: "Time"
 y_axis: "Value"
+x_range: [0, 10]
+y_range: [0, 10]
 line:
   style: dotted
   points:
@@ -105,19 +107,14 @@ sets:
       expect(svg).toContain('monospace');
     });
 
-    it('should handle missing frontmatter gracefully', async () => {
+    it('should reject missing frontmatter with validation error', async () => {
       const markdown = `# Just a title
 
 No frontmatter here.`;
 
       const filepath = await createTempFile(markdown);
-      const chartSpec = await parser.parseFile(filepath);
-      const svg = await ChartRendererFactory.renderChart(chartSpec);
-
-      expect(chartSpec.type).toBe('venn'); // default
       
-      const validation = validateSVGStructure(svg);
-      expect(validation.valid).toBe(true);
+      await expect(parser.parseFile(filepath)).rejects.toThrow('Invalid chart specification');
     });
 
     it('should render multiple chart types consistently', async () => {
@@ -130,6 +127,8 @@ sets: ["A", "B"]
 type: plot
 x_axis: "X"
 y_axis: "Y"
+x_range: [0, 10]
+y_range: [0, 10]
 line:
   points: [[1,1], [2,2]]
 captions: []
@@ -163,8 +162,8 @@ invalid: yaml: structure: [
 
       const filepath = await createTempFile(markdown);
       
-      // Should not throw but handle gracefully
-      await expect(parser.parseFile(filepath)).resolves.toBeDefined();
+      // Should throw a validation error for invalid YAML
+      await expect(parser.parseFile(filepath)).rejects.toThrow('Invalid chart specification');
     });
 
     it('should handle non-existent files appropriately', async () => {
@@ -203,16 +202,30 @@ sets:
     });
 
     it('should maintain consistent canvas size across chart types', async () => {
-      const specs = [
-        { type: 'venn', sets: ['A', 'B'] },
-        { type: 'plot', x_axis: 'X', y_axis: 'Y', line: { points: [[1,1]] }, captions: [] }
-      ];
+      const vennSpec = {
+        type: 'venn' as const,
+        data: {
+          sets: [
+            { name: 'A', size: 100 },
+            { name: 'B', size: 100 }
+          ]
+        }
+      };
 
-      for (const spec of specs) {
-        const svg = await ChartRendererFactory.renderChart({ 
-          type: spec.type as any, 
-          data: spec 
-        });
+      const plotSpec = {
+        type: 'plot' as const,
+        data: {
+          x_axis: 'X',
+          y_axis: 'Y',
+          x_range: [0, 10],
+          y_range: [0, 10],
+          line: { points: [[1,1], [2,2]] },
+          captions: []
+        }
+      };
+
+      for (const spec of [vennSpec, plotSpec]) {
+        const svg = await ChartRendererFactory.renderChart(spec);
         
         expect(svg).toMatch(/width="800"/);
         expect(svg).toMatch(/height="600"/);

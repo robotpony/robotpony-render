@@ -48,7 +48,7 @@ export const vennSchema = {
       }
     }
   },
-  required: ['type'],
+  required: ['type', 'sets'],
   additionalProperties: false
 };
 

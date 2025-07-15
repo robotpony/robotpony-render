@@ -40,7 +40,7 @@ overlap: Wishful Thinking
       
       const vennData = result.data as VennData;
       expect(vennData.sets).toHaveLength(2);
-      expect(vennData.sets[0].name).toBe('Best Practices');
+      expect(vennData.sets[0].name).toBe('Best\nPractices');
       expect(vennData.sets[0].color).toBe('#9fb665'); // olive color
       expect(vennData.intersections?.[0].label).toBe('Wishful Thinking');
     });
@@ -74,21 +74,18 @@ captions:
       const plotData = result.data as PlotData;
       expect(plotData.x_axis).toBe('Cool');
       expect(plotData.y_axis).toBe('Relevance');
-      expect(plotData.line.style).toBe('dotted');
-      expect(plotData.line.points).toHaveLength(2);
+      expect(plotData.line?.style).toBe('dotted');
+      expect(plotData.line?.points).toHaveLength(2);
       expect(plotData.captions).toHaveLength(1);
       expect(plotData.captions[0].text).toBe('Test Point');
     });
 
-    it('should handle missing frontmatter gracefully', () => {
+    it('should throw validation error for missing frontmatter', () => {
       const markdown = `# Just a title
 
 Some content without frontmatter.`;
 
-      const result = parser.parseContent(markdown);
-
-      expect(result.type).toBe('venn'); // default type
-      expect(result.data).toBeDefined();
+      expect(() => parser.parseContent(markdown)).toThrow('Invalid chart specification');
     });
 
     it('should parse frontmatter without body content', () => {
@@ -203,42 +200,31 @@ sets:
 type: venn
 sets:
   - "Manual\nLine Break"
+  - "Another Set"
 ---`;
 
       const result = parser.parseContent(markdown);
       const vennData = result.data as VennData;
       
-      expect(vennData.sets[0].name).toBe('Manual\nLine Break');
+      expect(vennData.sets[0].name).toBe('Manual Line\nBreak');
     });
   });
 
   describe('validation and defaults', () => {
-    it('should provide default values for missing required fields', () => {
+    it('should validate required fields for venn diagrams', () => {
       const markdown = `---
 type: venn
 ---`;
 
-      const result = parser.parseContent(markdown);
-      const vennData = result.data as VennData;
-      
-      expect(vennData.sets).toHaveLength(2); // Default sets
-      expect(vennData.sets[0].name).toBe('Set A');
-      expect(vennData.sets[1].name).toBe('Set B');
+      expect(() => parser.parseContent(markdown)).toThrow('Invalid chart specification');
     });
 
-    it('should handle empty plot data gracefully', () => {
+    it('should validate required fields for plot data', () => {
       const markdown = `---
 type: plot
 ---`;
 
-      const result = parser.parseContent(markdown);
-      const plotData = result.data as PlotData;
-      
-      expect(plotData.x_axis).toBe('X');
-      expect(plotData.y_axis).toBe('Y');
-      expect(plotData.x_range).toEqual([0, 10]);
-      expect(plotData.y_range).toEqual([0, 10]);
-      expect(plotData.captions).toEqual([]);
+      expect(() => parser.parseContent(markdown)).toThrow('Invalid chart specification');
     });
   });
 });

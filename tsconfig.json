@@ -20,7 +20,8 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "tests/jest-matchers.d.ts"
   ],
   "exclude": [
     "node_modules",

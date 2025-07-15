@@ -426,12 +426,12 @@ export class MarkdownParser {
    * Extract YAML frontmatter from markdown content
    */
   private extractFrontmatter(content: string): { frontmatter: any; body: string } {
-    const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
+    const frontmatterRegex = /^---\n([\s\S]*?)\n---(?:\n([\s\S]*))?$/;
     const match = content.match(frontmatterRegex);
     
     if (match) {
       const frontmatterText = match[1];
-      const body = match[2];
+      const body = match[2] || '';
       
       // Parse YAML frontmatter
       const frontmatter = yaml.load(frontmatterText) as any;

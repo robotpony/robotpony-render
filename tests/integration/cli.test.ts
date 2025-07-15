@@ -84,6 +84,8 @@ type: plot
 theme: robotpony
 x_axis: "Time"
 y_axis: "Progress"
+x_range: [0, 10]
+y_range: [0, 10]
 line:
   points: [[0, 0], [10, 10]]
 captions:
@@ -162,6 +164,13 @@ sets: ["Theme", "Test"]
       const markdown = `---
 type: plot
 title: "Test Chart Title"
+x_axis: "X"
+y_axis: "Y"
+x_range: [0, 10]
+y_range: [0, 10]
+line:
+  points: [[1, 1], [5, 5]]
+captions: []
 ---`;
 
       const inputFile = await createTempFile(markdown, '.md');
@@ -181,7 +190,9 @@ title: "Test Chart Title"
     it('should create output directory if it does not exist', async () => {
       const markdown = `---
 type: venn
-sets: ["Dir", "Test"]
+sets:
+  - Dir
+  - Test
 ---`;
 
       const inputFile = await createTempFile(markdown, '.md');
