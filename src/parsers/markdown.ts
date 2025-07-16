@@ -26,6 +26,7 @@ export interface VennData {
     sets: string[];
     size: number;
     label?: string;
+    arrow?: boolean;
   }>;
   background?: string;
 }

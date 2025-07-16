@@ -104,8 +104,8 @@ export const robotponyTheme: Theme = {
     captionConnector: 'stroke: #2c3e50; stroke-width: 1; stroke-dasharray: 2,1; fill: none;'
   },
   colors: {
-    primary: '#6B8CAE', // Steel blue matching example images
-    secondary: '#8BA446', // Olive green matching example style  
+    primary: '#8B7355', // Bronze/brown matching Beer circle
+    secondary: '#6B8CAE', // Blue-gray matching Freedom circle  
     accent: '#7B9BC4', // Lighter blue for third set
     background: '#d4c5a9', // Exact beige from reference images
     text: '#2F2F2F' // Dark text for better contrast

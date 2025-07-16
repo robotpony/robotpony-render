@@ -50,50 +50,116 @@ export class VennDiagramGenerator extends SVGRenderer {
     const offset = radius * 0.9; // Better overlap calculation for visual appeal
     
     if (data.sets.length === 2) {
-      // Two circle venn diagram
-      const circle1X = centerX - offset;
-      const circle2X = centerX + offset;
+      // Check if this should be a subset relationship based on size difference
+      const set1Size = typeof data.sets[0] === 'object' ? data.sets[0].size || 100 : 100;
+      const set2Size = typeof data.sets[1] === 'object' ? data.sets[1].size || 100 : 100;
+      const sizeRatio = Math.min(set1Size, set2Size) / Math.max(set1Size, set2Size);
       
-      // Draw circles with custom colors
-      const color1 = this.getSetColor(0, data.sets[0].color);
-      const color2 = this.getSetColor(1, data.sets[1].color);
+      let circle1X, circle2X, radius1, radius2;
       
-      // Draw circles with enhanced styling for robotpony theme
-      if (this.getCurrentTheme().name === 'robotpony') {
-        svg += `<circle class="venn-circle" cx="${circle1X}" cy="${centerY}" r="${radius}" fill="${color1}" stroke="${color1}" filter="url(#drop-shadow)"/>`;
-        svg += `<circle cx="${circle1X}" cy="${centerY}" r="${radius}" fill="${this.getGradientOverlay(color1)}" opacity="0.6"/>`;
-        svg += `<circle cx="${circle1X}" cy="${centerY}" r="${radius}" fill="url(#vintage-texture)"/>`;
+      if (sizeRatio < 0.8) {
+        // Subset relationship - one circle inside the other
+        const largerIndex = set1Size > set2Size ? 0 : 1;
+        const smallerIndex = 1 - largerIndex;
         
-        svg += `<circle class="venn-circle" cx="${circle2X}" cy="${centerY}" r="${radius}" fill="${color2}" stroke="${color2}" filter="url(#drop-shadow)"/>`;
-        svg += `<circle cx="${circle2X}" cy="${centerY}" r="${radius}" fill="${this.getGradientOverlay(color2)}" opacity="0.6"/>`;
-        svg += `<circle cx="${circle2X}" cy="${centerY}" r="${radius}" fill="url(#vintage-texture)"/>`;
+        // Larger circle at center
+        circle1X = centerX;
+        radius1 = radius;
+        
+        // Smaller circle offset within the larger one
+        circle2X = centerX - radius * 0.4;
+        const circle2Y = centerY - radius * 0.2;
+        radius2 = radius * (sizeRatio + 0.2); // Make it appropriately smaller
+        
+        // Draw larger circle first
+        const largerColor = this.getSetColor(largerIndex, data.sets[largerIndex].color);
+        const smallerColor = this.getSetColor(smallerIndex, data.sets[smallerIndex].color);
+        
+        if (this.getCurrentTheme().name === 'robotpony') {
+          svg += `<circle class="venn-circle" cx="${circle1X}" cy="${centerY}" r="${radius1}" fill="${largerColor}" stroke="${largerColor}" filter="url(#drop-shadow)"/>`;
+          svg += `<circle cx="${circle1X}" cy="${centerY}" r="${radius1}" fill="${this.getGradientOverlay(largerColor)}" opacity="0.6"/>`;
+          svg += `<circle cx="${circle1X}" cy="${centerY}" r="${radius1}" fill="url(#vintage-texture)"/>`;
+          
+          svg += `<circle class="venn-circle" cx="${circle2X}" cy="${circle2Y}" r="${radius2}" fill="${smallerColor}" stroke="${smallerColor}" filter="url(#drop-shadow)"/>`;
+          svg += `<circle cx="${circle2X}" cy="${circle2Y}" r="${radius2}" fill="${this.getGradientOverlay(smallerColor)}" opacity="0.6"/>`;
+          svg += `<circle cx="${circle2X}" cy="${circle2Y}" r="${radius2}" fill="url(#vintage-texture)"/>`;
+        } else {
+          svg += `<circle class="venn-circle" cx="${circle1X}" cy="${centerY}" r="${radius1}" fill="${largerColor}" stroke="${largerColor}"/>`;
+          svg += `<circle class="venn-circle" cx="${circle2X}" cy="${circle2Y}" r="${radius2}" fill="${smallerColor}" stroke="${smallerColor}"/>`;
+        }
+        
+        // Add labels
+        const textColor1 = getAccessibleTextColor(largerColor, false);
+        const textColor2 = getAccessibleTextColor(smallerColor, false);
+        
+        const isRobotpony = this.getCurrentTheme().name === 'robotpony';
+        
+        // Label for larger circle (positioned to avoid overlap)
+        svg += renderText(data.sets[largerIndex].name, centerX + radius * 0.4, centerY + radius * 0.3, { 
+          class: 'set-label',
+          textAnchor: 'middle',
+          fill: textColor1,
+          pixelated: isRobotpony,
+          fontSize: isRobotpony ? 13 : undefined,
+          letterSpacing: isRobotpony ? 2 : undefined
+        });
+        
+        // Label for smaller circle
+        svg += renderText(data.sets[smallerIndex].name, circle2X, circle2Y, { 
+          class: 'set-label',
+          textAnchor: 'middle',
+          fill: textColor2,
+          pixelated: isRobotpony,
+          fontSize: isRobotpony ? 13 : undefined,
+          letterSpacing: isRobotpony ? 2 : undefined
+        });
+        
       } else {
-        svg += `<circle class="venn-circle" cx="${circle1X}" cy="${centerY}" r="${radius}" fill="${color1}" stroke="${color1}"/>`;
-        svg += `<circle class="venn-circle" cx="${circle2X}" cy="${centerY}" r="${radius}" fill="${color2}" stroke="${color2}"/>`;
+        // Standard overlapping circles
+        circle1X = centerX - offset;
+        circle2X = centerX + offset;
+        
+        // Draw circles with custom colors
+        const color1 = this.getSetColor(0, data.sets[0].color);
+        const color2 = this.getSetColor(1, data.sets[1].color);
+        
+        // Draw circles with enhanced styling for robotpony theme
+        if (this.getCurrentTheme().name === 'robotpony') {
+          svg += `<circle class="venn-circle" cx="${circle1X}" cy="${centerY}" r="${radius}" fill="${color1}" stroke="${color1}" filter="url(#drop-shadow)"/>`;
+          svg += `<circle cx="${circle1X}" cy="${centerY}" r="${radius}" fill="${this.getGradientOverlay(color1)}" opacity="0.6"/>`;
+          svg += `<circle cx="${circle1X}" cy="${centerY}" r="${radius}" fill="url(#vintage-texture)"/>`;
+          
+          svg += `<circle class="venn-circle" cx="${circle2X}" cy="${centerY}" r="${radius}" fill="${color2}" stroke="${color2}" filter="url(#drop-shadow)"/>`;
+          svg += `<circle cx="${circle2X}" cy="${centerY}" r="${radius}" fill="${this.getGradientOverlay(color2)}" opacity="0.6"/>`;
+          svg += `<circle cx="${circle2X}" cy="${centerY}" r="${radius}" fill="url(#vintage-texture)"/>`;
+        } else {
+          svg += `<circle class="venn-circle" cx="${circle1X}" cy="${centerY}" r="${radius}" fill="${color1}" stroke="${color1}"/>`;
+          svg += `<circle class="venn-circle" cx="${circle2X}" cy="${centerY}" r="${radius}" fill="${color2}" stroke="${color2}"/>`;
+        }
+        
+        // Add labels centered in circles
+        const textColor1 = getAccessibleTextColor(color1, false);
+        const textColor2 = getAccessibleTextColor(color2, false);
+        
+        const isRobotpony = this.getCurrentTheme().name === 'robotpony';
+        
+        svg += renderText(data.sets[0].name, circle1X, centerY, { 
+          class: 'set-label',
+          textAnchor: 'middle',
+          fill: textColor1,
+          pixelated: isRobotpony,
+          fontSize: isRobotpony ? 13 : undefined,
+          letterSpacing: isRobotpony ? 2 : undefined
+        });
+        svg += renderText(data.sets[1].name, circle2X, centerY, { 
+          class: 'set-label',
+          textAnchor: 'middle',
+          fill: textColor2,
+          pixelated: isRobotpony,
+          fontSize: isRobotpony ? 13 : undefined,
+          letterSpacing: isRobotpony ? 2 : undefined
+        });
       }
-      
-      // Add labels centered in circles
-      const textColor1 = getAccessibleTextColor(color1, false);
-      const textColor2 = getAccessibleTextColor(color2, false);
-      
-      const isRobotpony = this.getCurrentTheme().name === 'robotpony';
-      
-      svg += renderText(data.sets[0].name, circle1X, centerY, { 
-        class: 'set-label',
-        textAnchor: 'middle',
-        fill: textColor1,
-        pixelated: isRobotpony,
-        fontSize: isRobotpony ? 13 : undefined,
-        letterSpacing: isRobotpony ? 2 : undefined
-      });
-      svg += renderText(data.sets[1].name, circle2X, centerY, { 
-        class: 'set-label',
-        textAnchor: 'middle',
-        fill: textColor2,
-        pixelated: isRobotpony,
-        fontSize: isRobotpony ? 13 : undefined,
-        letterSpacing: isRobotpony ? 2 : undefined
-      });
       
       // Add intersection label if exists
       if (data.intersections && data.intersections.length > 0) {
@@ -101,30 +167,65 @@ export class VennDiagramGenerator extends SVGRenderer {
         const labelText = intersection.label || intersection.size.toString();
         
         if (this.getCurrentTheme().name === 'robotpony') {
-          // Draw bracket-style connector like in the comic
-          const bracketY = centerY + radius + 30;
-          const bracketWidth = radius * 1.5;
-          const bracketHeight = 20;
-          
-          // Vertical connector line from intersection to bracket
-          svg += `<line class="connector-line" x1="${centerX}" y1="${centerY + 10}" x2="${centerX}" y2="${bracketY - bracketHeight/2}"/>`;
-          
-          // Draw bracket shape (inverted U)
-          svg += `<path class="connector-line" d="M ${centerX - bracketWidth/2} ${bracketY - bracketHeight/2} L ${centerX - bracketWidth/2} ${bracketY} L ${centerX + bracketWidth/2} ${bracketY} L ${centerX + bracketWidth/2} ${bracketY - bracketHeight/2}" fill="none"/>`;
-          
-          // Badge background
-          const badgeWidth = labelText.length * 8 + 20;
-          const badgeHeight = 20;
-          svg += `<rect class="intersection-badge" x="${centerX - badgeWidth/2}" y="${bracketY + 5}" width="${badgeWidth}" height="${badgeHeight}"/>`;
-          
-          // Add intersection text below bracket
-          svg += renderText(labelText, centerX, bracketY + 20, { 
-            class: 'intersection-label',
-            textAnchor: 'middle',
-            pixelated: true,
-            fontSize: 10,
-            letterSpacing: 1
-          });
+          if (intersection.arrow) {
+            // Draw arrow-style indicator pointing to intersection
+            const arrowStartX = centerX - radius * 1.2;
+            const arrowStartY = centerY - radius * 0.8;
+            const arrowEndX = centerX - radius * 0.2;
+            const arrowEndY = centerY - radius * 0.2;
+            
+            // Arrow line
+            svg += `<line class="connector-line" x1="${arrowStartX}" y1="${arrowStartY}" x2="${arrowEndX}" y2="${arrowEndY}"/>`;
+            
+            // Arrowhead
+            const arrowLength = 8;
+            const arrowAngle = Math.PI / 6; // 30 degrees
+            const lineAngle = Math.atan2(arrowEndY - arrowStartY, arrowEndX - arrowStartX);
+            const x1 = arrowEndX - arrowLength * Math.cos(lineAngle - arrowAngle);
+            const y1 = arrowEndY - arrowLength * Math.sin(lineAngle - arrowAngle);
+            const x2 = arrowEndX - arrowLength * Math.cos(lineAngle + arrowAngle);
+            const y2 = arrowEndY - arrowLength * Math.sin(lineAngle + arrowAngle);
+            svg += `<polygon points="${arrowEndX},${arrowEndY} ${x1},${y1} ${x2},${y2}" fill="#34495e" class="arrowhead"/>`;
+            
+            // Badge positioned near arrow start
+            const badgeWidth = labelText.length * 8 + 20;
+            const badgeHeight = 20;
+            svg += `<rect class="intersection-badge" x="${arrowStartX - badgeWidth - 10}" y="${arrowStartY - badgeHeight/2}" width="${badgeWidth}" height="${badgeHeight}" rx="4" ry="4"/>`;
+            
+            // Text label near arrow
+            svg += renderText(labelText, arrowStartX - 10, arrowStartY + 5, { 
+              class: 'intersection-label',
+              textAnchor: 'end',
+              pixelated: true,
+              fontSize: 10,
+              letterSpacing: 1
+            });
+          } else {
+            // Draw bracket-style connector like in the comic
+            const bracketY = centerY + radius + 30;
+            const bracketWidth = radius * 1.5;
+            const bracketHeight = 20;
+            
+            // Vertical connector line from intersection to bracket
+            svg += `<line class="connector-line" x1="${centerX}" y1="${centerY + 10}" x2="${centerX}" y2="${bracketY - bracketHeight/2}"/>`;
+            
+            // Draw bracket shape (inverted U)
+            svg += `<path class="connector-line" d="M ${centerX - bracketWidth/2} ${bracketY - bracketHeight/2} L ${centerX - bracketWidth/2} ${bracketY} L ${centerX + bracketWidth/2} ${bracketY} L ${centerX + bracketWidth/2} ${bracketY - bracketHeight/2}" fill="none"/>`;
+            
+            // Badge background
+            const badgeWidth = labelText.length * 8 + 20;
+            const badgeHeight = 20;
+            svg += `<rect class="intersection-badge" x="${centerX - badgeWidth/2}" y="${bracketY + 5}" width="${badgeWidth}" height="${badgeHeight}"/>`;
+            
+            // Add intersection text below bracket
+            svg += renderText(labelText, centerX, bracketY + 20, { 
+              class: 'intersection-label',
+              textAnchor: 'middle',
+              pixelated: true,
+              fontSize: 10,
+              letterSpacing: 1
+            });
+          }
         } else {
           svg += renderText(labelText, centerX, centerY + 5, { 
             class: 'intersection-label',

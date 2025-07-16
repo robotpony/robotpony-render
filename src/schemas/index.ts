@@ -41,7 +41,8 @@ export const vennSchema = {
             minItems: 2
           },
           size: { type: 'number', minimum: 0 },
-          label: { type: 'string' }
+          label: { type: 'string' },
+          arrow: { type: 'boolean' }
         },
         required: ['sets'],
         additionalProperties: false
