@@ -6,7 +6,7 @@ import { SVGRenderer, RenderOptions } from '../renderers/svg';
 import { ChartSpec, VennData } from '../parsers/markdown';
 import { getAccessibleTextColor } from '../utils/accessibility';
 import { getTheme, Theme } from '../themes';
-import { renderMultilineText } from '../utils/text';
+import { renderMultilineText, renderText } from '../utils/text';
 
 export class VennDiagramGenerator extends SVGRenderer {
   constructor(options: RenderOptions = {}) {
@@ -28,14 +28,18 @@ export class VennDiagramGenerator extends SVGRenderer {
     const data = chartSpec.data as VennData;
     let svg = this.createSVG(data.background);
     
-    // Add styles
-    svg += this.generateStyles();
+    // Add styles within existing defs
+    const styles = this.getThemeStyles();
+    svg = svg.replace('</defs>', `<style type="text/css">${styles}</style></defs>`);
     
     // Add title if provided
     if (chartSpec.title) {
+      const isRobotpony = this.getCurrentTheme().name === 'robotpony';
       svg += renderMultilineText(chartSpec.title, this.width / 2, 40, { 
         class: 'chart-title',
-        textAnchor: 'middle'
+        textAnchor: 'middle',
+        pixelated: isRobotpony,
+        letterSpacing: isRobotpony ? 3 : undefined
       });
     }
     
@@ -72,15 +76,23 @@ export class VennDiagramGenerator extends SVGRenderer {
       const textColor1 = getAccessibleTextColor(color1, false);
       const textColor2 = getAccessibleTextColor(color2, false);
       
-      svg += renderMultilineText(data.sets[0].name, circle1X, centerY, { 
+      const isRobotpony = this.getCurrentTheme().name === 'robotpony';
+      
+      svg += renderText(data.sets[0].name, circle1X, centerY, { 
         class: 'set-label',
         textAnchor: 'middle',
-        fill: textColor1
+        fill: textColor1,
+        pixelated: isRobotpony,
+        fontSize: isRobotpony ? 13 : undefined,
+        letterSpacing: isRobotpony ? 2 : undefined
       });
-      svg += renderMultilineText(data.sets[1].name, circle2X, centerY, { 
+      svg += renderText(data.sets[1].name, circle2X, centerY, { 
         class: 'set-label',
         textAnchor: 'middle',
-        fill: textColor2
+        fill: textColor2,
+        pixelated: isRobotpony,
+        fontSize: isRobotpony ? 13 : undefined,
+        letterSpacing: isRobotpony ? 2 : undefined
       });
       
       // Add intersection label if exists
@@ -106,12 +118,15 @@ export class VennDiagramGenerator extends SVGRenderer {
           svg += `<rect class="intersection-badge" x="${centerX - badgeWidth/2}" y="${bracketY + 5}" width="${badgeWidth}" height="${badgeHeight}"/>`;
           
           // Add intersection text below bracket
-          svg += renderMultilineText(labelText, centerX, bracketY + 20, { 
+          svg += renderText(labelText, centerX, bracketY + 20, { 
             class: 'intersection-label',
-            textAnchor: 'middle'
+            textAnchor: 'middle',
+            pixelated: true,
+            fontSize: 10,
+            letterSpacing: 1
           });
         } else {
-          svg += renderMultilineText(labelText, centerX, centerY + 5, { 
+          svg += renderText(labelText, centerX, centerY + 5, { 
             class: 'intersection-label',
             textAnchor: 'middle'
           });
@@ -206,13 +221,6 @@ export class VennDiagramGenerator extends SVGRenderer {
     return svg;
   }
 
-  /**
-   * Generate CSS styles for the diagram
-   */
-  private generateStyles(): string {
-    const styles = this.getThemeStyles();
-    return `<defs><style type="text/css">${styles}</style></defs>`;
-  }
 
 
   /**

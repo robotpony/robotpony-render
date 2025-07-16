@@ -87,26 +87,26 @@ export const rpTheme: Theme = {
 
 export const robotponyTheme: Theme = {
   name: 'robotpony',
-  description: 'Comic-style theme perfect for Robotpony.ca aesthetic with vintage textures and bold typography',
+  description: 'Retro comic-style theme matching vintage robotpony.ca aesthetic with pixelated fonts and weathered textures',
   typography: robotponyTypography,
   styles: {
     chartTitle: textStyleToSVG(robotponyTypography.h1),
     setLabel: textStyleToSVG(robotponyTypography.label),
-    vennCircle: 'stroke-width: 2; opacity: 0.8;',
+    vennCircle: 'stroke-width: 3; opacity: 0.7; filter: url(#rough-edges);',
     intersectionLabel: textStyleToSVG(robotponyTypography.caption),
-    intersectionBadge: 'fill: #2c3e50; stroke: #2c3e50; stroke-width: 2; rx: 12; ry: 12;',
-    connectorLine: 'stroke: #2c3e50; stroke-width: 2; fill: none;',
-    axisLine: 'stroke: #333; stroke-width: 2; fill: none;',
+    intersectionBadge: 'fill: #34495e; stroke: #34495e; stroke-width: 2; rx: 4; ry: 4;',
+    connectorLine: 'stroke: #34495e; stroke-width: 2; stroke-dasharray: 4,3; fill: none;',
+    axisLine: 'stroke: #2c3e50; stroke-width: 2; fill: none; stroke-linecap: square;',
     axisLabel: textStyleToSVG(robotponyTypography.body),
-    plotLine: 'stroke: #333; stroke-width: 2; fill: none;',
-    captionBox: 'fill: #2c3e50; stroke: #2c3e50; stroke-width: 2; rx: 8; ry: 8;',
+    plotLine: 'stroke: #2c3e50; stroke-width: 2; stroke-dasharray: 3,2; fill: none; stroke-linecap: square;',
+    captionBox: 'fill: #34495e; stroke: #34495e; stroke-width: 2; rx: 4; ry: 4;',
     captionText: textStyleToSVG(robotponyTypography.caption),
-    captionConnector: 'stroke: #333; stroke-width: 1; fill: none;'
+    captionConnector: 'stroke: #2c3e50; stroke-width: 1; stroke-dasharray: 2,1; fill: none;'
   },
   colors: {
-    primary: '#4A6B7C', // Darker steel blue to match reference images
-    secondary: '#8BA446', // Olive green to match reference style  
-    accent: '#B8860B', // Dark goldenrod for variety
+    primary: '#6B8CAE', // Steel blue matching example images
+    secondary: '#8BA446', // Olive green matching example style  
+    accent: '#7B9BC4', // Lighter blue for third set
     background: '#d4c5a9', // Exact beige from reference images
     text: '#2F2F2F' // Dark text for better contrast
   }

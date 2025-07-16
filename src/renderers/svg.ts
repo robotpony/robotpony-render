@@ -43,31 +43,55 @@ export abstract class SVGRenderer {
    */
   protected createPatterns(): string {
     return `<defs>
-      <!-- Subtle texture pattern for vintage comic look -->
+      <!-- Rough edges filter for retro aesthetic -->
+      <filter id="rough-edges" x="-50%" y="-50%" width="200%" height="200%">
+        <feTurbulence baseFrequency="0.04" numOctaves="3" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2"/>
+      </filter>
+      
+      <!-- Vintage texture pattern -->
       <pattern id="vintage-texture" patternUnits="userSpaceOnUse" width="4" height="4">
-        <rect width="4" height="4" fill="rgba(255,255,255,0.02)"/>
-        <circle cx="2" cy="2" r="0.5" fill="rgba(0,0,0,0.03)"/>
+        <rect width="4" height="4" fill="rgba(255,255,255,0.05)"/>
+        <circle cx="2" cy="2" r="0.5" fill="rgba(0,0,0,0.08)"/>
+        <rect x="1" y="1" width="1" height="1" fill="rgba(255,255,255,0.1)"/>
+      </pattern>
+      
+      <!-- Paper texture for background -->
+      <pattern id="paper-texture" patternUnits="userSpaceOnUse" width="8" height="8">
+        <rect width="8" height="8" fill="#d4c5a9"/>
+        <circle cx="2" cy="2" r="0.3" fill="rgba(139,125,107,0.2)"/>
+        <circle cx="6" cy="6" r="0.2" fill="rgba(139,125,107,0.3)"/>
+        <rect x="4" y="1" width="0.5" height="0.5" fill="rgba(139,125,107,0.1)"/>
       </pattern>
       
       <!-- Gradient definitions for depth -->
       <radialGradient id="circle-gradient-blue" cx="30%" cy="30%">
-        <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
-        <stop offset="100%" style="stop-color:rgba(0,0,0,0.1);stop-opacity:1" />
+        <stop offset="0%" style="stop-color:rgba(255,255,255,0.4);stop-opacity:1" />
+        <stop offset="100%" style="stop-color:rgba(0,0,0,0.15);stop-opacity:1" />
       </radialGradient>
       
       <radialGradient id="circle-gradient-green" cx="30%" cy="30%">
-        <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
-        <stop offset="100%" style="stop-color:rgba(0,0,0,0.1);stop-opacity:1" />
+        <stop offset="0%" style="stop-color:rgba(255,255,255,0.4);stop-opacity:1" />
+        <stop offset="100%" style="stop-color:rgba(0,0,0,0.15);stop-opacity:1" />
       </radialGradient>
       
       <radialGradient id="circle-gradient-orange" cx="30%" cy="30%">
-        <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
-        <stop offset="100%" style="stop-color:rgba(0,0,0,0.1);stop-opacity:1" />
+        <stop offset="0%" style="stop-color:rgba(255,255,255,0.4);stop-opacity:1" />
+        <stop offset="100%" style="stop-color:rgba(0,0,0,0.15);stop-opacity:1" />
       </radialGradient>
       
       <!-- Drop shadow filter -->
       <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
         <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+      </filter>
+      
+      <!-- Pixelated text effect -->
+      <filter id="pixelate-text" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="0" result="smooth"/>
+        <feComponentTransfer>
+          <feFuncA type="discrete" tableValues="0 .5 1"/>
+        </feComponentTransfer>
+        <feColorMatrix type="saturate" values="2"/>
       </filter>
     </defs>`;
   }
@@ -83,7 +107,7 @@ export abstract class SVGRenderer {
       const watermarkX = this.width - 10;
       const watermarkY = this.height - 10;
       
-      return `<text x="${watermarkX}" y="${watermarkY}" font-family="monospace" font-size="10" fill="#999" opacity="0.7" text-anchor="end">ROBOTPONY.CA</text>`;
+      return `<text x="${watermarkX}" y="${watermarkY}" font-family="Courier New, monospace" font-size="9" font-weight="700" fill="#999" opacity="0.7" text-anchor="end" letter-spacing="1px">ROBOTPONY.CA</text>`;
     }
     
     return '';

@@ -89,8 +89,14 @@ export const comicFonts: Record<string, FontDefinition> = {
     styles: ['normal']
   },
   'bitmap': {
-    family: 'Courier New',
-    fallbacks: ['Monaco', 'Consolas', 'monospace'],
+    family: 'PerfectDOSVGA437Win',
+    fallbacks: ['Courier New', 'Monaco', 'Consolas', 'monospace'],
+    weights: [400, 700],
+    styles: ['normal']
+  },
+  'retro-pixel': {
+    family: 'monospace',
+    fallbacks: ['Courier New', 'Monaco'],
     weights: [700],
     styles: ['normal']
   }
@@ -108,11 +114,11 @@ export function buildFontFamily(fontKey: string): string {
 // Typography scales for different themes
 export const robotponyTypography: TypographyScale = {
   h1: {
-    fontFamily: buildFontFamily('bitmap'),
-    fontSize: 24,
+    fontFamily: '"Courier New", monospace',
+    fontSize: 20,
     fontWeight: 700,
-    lineHeight: 1.1,
-    letterSpacing: 2,
+    lineHeight: 1.0,
+    letterSpacing: 3,
     textAnchor: 'middle',
     fill: '#2F2F2F',
     textShadow: [
@@ -126,10 +132,10 @@ export const robotponyTypography: TypographyScale = {
     }
   },
   h2: {
-    fontFamily: buildFontFamily('bitmap'),
-    fontSize: 18,
+    fontFamily: '"Courier New", monospace',
+    fontSize: 16,
     fontWeight: 700,
-    lineHeight: 1.1,
+    lineHeight: 1.0,
     letterSpacing: 2,
     textAnchor: 'middle',
     fill: '#2F2F2F',
@@ -138,43 +144,43 @@ export const robotponyTypography: TypographyScale = {
     ]
   },
   h3: {
-    fontFamily: buildFontFamily('bitmap'),
-    fontSize: 16,
+    fontFamily: '"Courier New", monospace',
+    fontSize: 14,
     fontWeight: 700,
-    lineHeight: 1.1,
+    lineHeight: 1.0,
     letterSpacing: 2,
     textAnchor: 'middle',
     fill: '#2F2F2F'
   },
   body: {
-    fontFamily: buildFontFamily('bitmap'),
-    fontSize: 14,
+    fontFamily: '"Courier New", monospace',
+    fontSize: 12,
     fontWeight: 700,
-    lineHeight: 1.2,
+    lineHeight: 1.0,
     letterSpacing: 2,
     textAnchor: 'start',
     fill: '#2F2F2F'
   },
   caption: {
-    fontFamily: buildFontFamily('bitmap'),
-    fontSize: 11,
+    fontFamily: '"Courier New", monospace',
+    fontSize: 10,
     fontWeight: 700,
-    lineHeight: 1.1,
+    lineHeight: 1.0,
     letterSpacing: 1,
     textAnchor: 'middle',
     fill: '#ffffff',
     backgroundColor: '#2c3e50',
     backgroundPadding: 4,
-    backgroundRadius: 3,
+    backgroundRadius: 2,
     textShadow: [
-      { offsetX: 1, offsetY: 1, blur: 0, color: '#000000', opacity: 0.6 }
+      { offsetX: 1, offsetY: 1, blur: 0, color: '#000000', opacity: 0.8 }
     ]
   },
   label: {
-    fontFamily: buildFontFamily('bitmap'),
-    fontSize: 14,
+    fontFamily: '"Courier New", monospace',
+    fontSize: 13,
     fontWeight: 700,
-    lineHeight: 1.1,
+    lineHeight: 1.0,
     letterSpacing: 2,
     textAnchor: 'middle',
     fill: '#ffffff',
@@ -188,10 +194,10 @@ export const robotponyTypography: TypographyScale = {
     }
   },
   emphasis: {
-    fontFamily: buildFontFamily('bitmap'),
-    fontSize: 20,
+    fontFamily: '"Courier New", monospace',
+    fontSize: 18,
     fontWeight: 700,
-    lineHeight: 1.1,
+    lineHeight: 1.0,
     letterSpacing: 3,
     textAnchor: 'middle',
     fill: '#d4c5a9',

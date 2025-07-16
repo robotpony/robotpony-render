@@ -5,6 +5,7 @@
 import { SVGRenderer, RenderOptions } from '../renderers/svg';
 import { ChartSpec, PlotData } from '../parsers/markdown';
 import { renderText } from '../utils/text';
+import { getTheme } from '../themes';
 import { 
   drawGrid, 
   drawAxes, 
@@ -27,8 +28,9 @@ export class PlotGenerator extends SVGRenderer {
     const data = chartSpec.data as PlotData;
     let svg = this.createSVG(data.background || '#d4c5a9'); // Default beige background
     
-    // Add styles
-    svg += this.generateStyles();
+    // Add styles within existing defs
+    const styles = this.getThemeStyles();
+    svg = svg.replace('</defs>', `<style type="text/css">${styles}</style></defs>`);
     
     // Chart margins
     const margin: ChartMargin = { top: 60, right: 80, bottom: 80, left: 80 };
@@ -37,9 +39,13 @@ export class PlotGenerator extends SVGRenderer {
     
     // Add title if provided
     if (chartSpec.title) {
+      const isRobotpony = getTheme(this.theme).name === 'robotpony';
       svg += renderText(chartSpec.title, this.width / 2, 30, {
         class: 'chart-title',
-        textAnchor: 'middle'
+        textAnchor: 'middle',
+        pixelated: isRobotpony,
+        fontSize: isRobotpony ? 20 : undefined,
+        letterSpacing: isRobotpony ? 3 : undefined
       });
     }
     
@@ -69,52 +75,6 @@ export class PlotGenerator extends SVGRenderer {
     return svg;
   }
 
-  /**
-   * Generate CSS styles for the plot graph
-   */
-  private generateStyles(): string {
-    const baseStyles = this.getThemeStyles();
-    const plotStyles = `
-      .axis-line { stroke: #333; stroke-width: 2; fill: none; }
-      .axis-label { font-family: 'Courier New', Monaco, Consolas, monospace; font-size: 14px; font-weight: bold; fill: #333; letter-spacing: 1px; }
-      .plot-line { stroke: #333; stroke-width: 2; fill: none; }
-      .plot-line.dotted { stroke-dasharray: 4,4; }
-      .plot-line.dashed { stroke-dasharray: 8,4; }
-      .plot-line.dash-dot { stroke-dasharray: 8,4,2,4; }
-      .caption-box { 
-        fill: #2c3e50; 
-        stroke: #2c3e50; 
-        stroke-width: 1; 
-        rx: 4; 
-        ry: 4; 
-      }
-      .caption-text { 
-        font-family: 'Courier New', Monaco, Consolas, monospace; 
-        font-size: 11px; 
-        font-weight: bold; 
-        text-anchor: middle; 
-        fill: white; 
-        letter-spacing: 1px;
-      }
-      .caption-connector { 
-        stroke: #333; 
-        stroke-width: 1; 
-        fill: none; 
-      }
-      .marker-label {
-        font-family: 'Courier New', Monaco, Consolas, monospace;
-        font-size: 10px;
-        font-weight: bold;
-      }
-      .legend-text {
-        font-family: 'Courier New', Monaco, Consolas, monospace;
-        font-size: 12px;
-        font-weight: bold;
-      }
-    `;
-    
-    return `<defs><style type="text/css">${baseStyles}${plotStyles}</style></defs>`;
-  }
 
 
   /**
@@ -331,9 +291,13 @@ export class PlotGenerator extends SVGRenderer {
       svg += `<rect class="caption-box" x="${boxX}" y="${boxY}" width="${textWidth}" height="${textHeight}"/>`;
       
       // Draw caption text
+      const isRobotpony = getTheme(this.theme).name === 'robotpony';
       svg += renderText(caption.text, boxX + textWidth / 2, boxY + textHeight / 2 + 4, {
         class: 'caption-text',
-        textAnchor: 'middle'
+        textAnchor: 'middle',
+        pixelated: isRobotpony,
+        fontSize: isRobotpony ? 10 : undefined,
+        letterSpacing: isRobotpony ? 1 : undefined
       });
     });
     
