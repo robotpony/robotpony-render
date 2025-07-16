@@ -10,30 +10,61 @@ export interface ConvertOptions {
   width?: number;
   height?: number;
   quality?: number;
+  density?: number;
+  scaleFactor?: number;
 }
 
 /**
- * Convert SVG to PNG using Sharp
+ * Convert SVG to PNG using Sharp with high-quality settings
  */
 export async function convertSVGToPNG(
   svgContent: string, 
   outputPath: string, 
   options: ConvertOptions = {}
 ): Promise<void> {
-  const sharpInstance = sharp(Buffer.from(svgContent))
-    .png();
+  // Set defaults for high quality output
+  const defaults = {
+    density: 96,
+    scaleFactor: 1.5,
+    quality: 85
+  };
   
-  // Set dimensions if provided
-  if (options.width || options.height) {
-    sharpInstance.resize(options.width, options.height);
+  const settings = { ...defaults, ...options };
+  
+  try {
+    // Create Sharp instance with timeout and conservative settings
+    const sharpInstance = sharp(Buffer.from(svgContent), {
+      density: settings.density,
+      limitInputPixels: false
+    }).timeout({ seconds: 30 })
+    .png({
+      quality: settings.quality,
+      compressionLevel: 6,
+      adaptiveFiltering: false,
+      force: true
+    });
+    
+    // Calculate scaled dimensions if provided
+    let targetWidth = settings.width;
+    let targetHeight = settings.height;
+    
+    if (settings.scaleFactor && settings.scaleFactor !== 1) {
+      if (targetWidth) targetWidth = Math.round(targetWidth * settings.scaleFactor);
+      if (targetHeight) targetHeight = Math.round(targetHeight * settings.scaleFactor);
+    }
+    
+    // Set dimensions if provided
+    if (targetWidth || targetHeight) {
+      sharpInstance.resize(targetWidth, targetHeight, {
+        kernel: sharp.kernel.lanczos2,
+        withoutEnlargement: false
+      });
+    }
+    
+    await sharpInstance.toFile(outputPath);
+  } catch (error) {
+    throw new Error(`PNG conversion failed: ${error instanceof Error ? error.message : String(error)}`);
   }
-  
-  // Set quality if provided
-  if (options.quality) {
-    sharpInstance.png({ quality: options.quality });
-  }
-  
-  await sharpInstance.toFile(outputPath);
 }
 
 /**

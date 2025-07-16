@@ -227,9 +227,9 @@ sets:
       for (const spec of [vennSpec, plotSpec]) {
         const svg = await ChartRendererFactory.renderChart(spec);
         
-        expect(svg).toMatch(/width="800"/);
-        expect(svg).toMatch(/height="600"/);
-        expect(svg).toMatch(/viewBox="0 0 800 600"/);
+        expect(svg).toMatch(/width="1200"/);
+        expect(svg).toMatch(/height="900"/);
+        expect(svg).toMatch(/viewBox="0 0 1200 900"/);
       }
     });
   });

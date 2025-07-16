@@ -18,8 +18,8 @@ export abstract class SVGRenderer {
   protected theme: string;
 
   constructor(options: RenderOptions = {}) {
-    this.width = options.width || 800;
-    this.height = options.height || 600;
+    this.width = options.width || 1200;
+    this.height = options.height || 900;
     this.theme = options.theme || 'default';
   }
 
@@ -35,7 +35,7 @@ export abstract class SVGRenderer {
     const bgRect = backgroundColor ? 
       `<rect width="100%" height="100%" fill="${backgroundColor}"/>` : '';
     
-    return `<svg width="${this.width}" height="${this.height}" viewBox="0 0 ${this.width} ${this.height}" xmlns="http://www.w3.org/2000/svg">${this.createPatterns()}${bgRect}`;
+    return `<svg width="${this.width}" height="${this.height}" viewBox="0 0 ${this.width} ${this.height}" xmlns="http://www.w3.org/2000/svg" style="shape-rendering: geometricPrecision; text-rendering: optimizeLegibility; font-smooth: always; -webkit-font-smoothing: antialiased;">${this.createPatterns()}${bgRect}`;
   }
 
   /**
